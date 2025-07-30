@@ -1,7 +1,7 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
-import "react-quill/dist/quill.snow.css"; // Import Quill CSS globally
-import Header from "@/components/Header"; // We will create this next
+// import "react-quill/dist/quill.snow.css"; // Import Quill CSS globally
+import { AuthContextProvider } from "@/context/AuthContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -11,14 +11,10 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
-  // In a real app, you would fetch user data here or in a provider
-  const user = { loggedIn: true, name: "Demo User" };
-
   return (
     <html lang="en">
       <body className={inter.className}>
-        {user.loggedIn && <Header />}
-        <main className="flex-1">{children}</main>
+        <AuthContextProvider>{children}</AuthContextProvider>
       </body>
     </html>
   );

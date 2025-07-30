@@ -1,22 +1,39 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, Upload, Image as ImageIcon } from "lucide-react";
 import { uploadFile } from "@/lib/data";
 
-export default function CreatePageModal({ isOpen, onClose, onSubmit }) {
+export default function EditPageModal({ isOpen, page, onClose, onSubmit }) {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     thumbnail: "",
+    order_index: 0,
   });
   const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    if (page) {
+      setFormData({
+        title: page.title || "",
+        description: page.description || "",
+        thumbnail: page.thumbnail || "",
+        order_index: page.order_index || 0,
+      });
+    }
+  }, [page]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.title.trim()) return;
-    onSubmit(formData);
-    // Reset form and close modal is handled by the parent component now
+
+    const dataToSend = {
+      ...formData,
+      order_index: Number(formData.order_index) || 0,
+    };
+
+    onSubmit(dataToSend);
   };
 
   const handleFileUpload = async (e) => {
@@ -25,8 +42,7 @@ export default function CreatePageModal({ isOpen, onClose, onSubmit }) {
 
     setUploading(true);
     try {
-      // This will use our mock function for now
-      const file_url = await uploadFile(file, "page-thumbnails"); // Added path
+      const file_url = await uploadFile(file, "page-thumbnails");
       setFormData((prev) => ({ ...prev, thumbnail: file_url }));
     } catch (error) {
       console.error("Upload failed:", error);
@@ -41,7 +57,7 @@ export default function CreatePageModal({ isOpen, onClose, onSubmit }) {
     <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4">
       <div className="bg-neumorphic-bg rounded-2xl shadow-neumorphic p-6 w-full max-w-md">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-neumorphic">Create New Page</h2>
+          <h2 className="text-xl font-bold text-neumorphic">Edit Page</h2>
           <button
             onClick={onClose}
             className="p-2 rounded-lg btn-neumorphic shadow-neumorphic hover:shadow-neumorphic-soft active:shadow-neumorphic-pressed"
@@ -61,7 +77,7 @@ export default function CreatePageModal({ isOpen, onClose, onSubmit }) {
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, title: e.target.value }))
               }
-              className="w-full px-4 py-3 rounded-xl bg-neumorphic-bg shadow-neumorphic-inset text-neumorphic-text placeholder-neumorphic-text focus:outline-none"
+              className="w-full px-4 py-3 rounded-xl bg-neumorphic-bg shadow-neumorphic-inset text-neumorphic-text placeholder-neumorphic-text/70 focus:outline-none"
               placeholder="Enter page title"
               required
             />
@@ -79,9 +95,29 @@ export default function CreatePageModal({ isOpen, onClose, onSubmit }) {
                   description: e.target.value,
                 }))
               }
-              className="w-full px-4 py-3 rounded-xl bg-neumorphic-bg shadow-neumorphic-inset text-neumorphic-text placeholder-neumorphic-text focus:outline-none resize-none"
+              className="w-full px-4 py-3 rounded-xl bg-neumorphic-bg shadow-neumorphic-inset text-neumorphic-text placeholder-neumorphic-text/70 focus:outline-none resize-none"
               placeholder="Enter page description"
               rows="3"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-neumorphic mb-2">
+              Order Index
+            </label>
+            <input
+              type="number"
+              min="0"
+              value={formData.order_index}
+              onChange={(e) => {
+                const value = e.target.value;
+                setFormData((prev) => ({
+                  ...prev,
+                  // Allow an empty string for typing, otherwise parse to integer
+                  order_index: value === "" ? "" : parseInt(value, 10),
+                }));
+              }}
+              className="w-full px-4 py-3 rounded-xl bg-neumorphic-bg shadow-neumorphic-inset text-neumorphic-text placeholder-neumorphic-text/70 focus:outline-none"
             />
           </div>
 
@@ -109,14 +145,14 @@ export default function CreatePageModal({ isOpen, onClose, onSubmit }) {
                   accept="image/*"
                   onChange={handleFileUpload}
                   className="hidden"
-                  id="thumbnail-upload"
+                  id="page-thumbnail-edit-upload"
                 />
                 <label
-                  htmlFor="thumbnail-upload"
+                  htmlFor="page-thumbnail-edit-upload"
                   className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg btn-neumorphic shadow-neumorphic text-sm text-neumorphic-text cursor-pointer hover:shadow-neumorphic-soft active:shadow-neumorphic-pressed"
                 >
                   <Upload className="w-4 h-4" />
-                  {uploading ? "Uploading..." : "Upload Image"}
+                  {uploading ? "Uploading..." : "Change Image"}
                 </label>
               </div>
             </div>
@@ -135,7 +171,7 @@ export default function CreatePageModal({ isOpen, onClose, onSubmit }) {
               className="flex-1 py-3 rounded-xl btn-neumorphic shadow-neumorphic text-neumorphic-text font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={!formData.title.trim() || uploading}
             >
-              Create Page
+              Update Page
             </button>
           </div>
         </form>

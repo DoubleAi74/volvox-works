@@ -2,14 +2,23 @@
 
 import Link from "next/link";
 import { Home, LogOut, User as UserIcon } from "lucide-react";
-import { getMockUser } from "@/lib/data";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
-  const user = getMockUser();
+  const { user, logout } = useAuth();
+  const router = useRouter();
 
-  const handleLogout = () => {
-    alert("Logout functionality will be implemented with Firebase.");
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.push("/login");
+    } catch (error) {
+      console.error("Failed to log out:", error);
+    }
   };
+
+  if (!user) return null; // Don't render header if no user
 
   return (
     <header className="bg-neumorphic-bg border-b border-neumorphic-shadow-dark/50 shadow-neumorphic-soft">
@@ -27,9 +36,7 @@ export default function Header() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-neumorphic-bg shadow-neumorphic-inset">
               <UserIcon className="w-4 h-4 text-neumorphic-text" />
-              <span className="text-sm text-neumorphic">
-                {user.full_name || user.email}
-              </span>
+              <span className="text-sm text-neumorphic">{user.email}</span>
             </div>
             <button
               onClick={handleLogout}

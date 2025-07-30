@@ -1,21 +1,24 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Upload, Link as LinkIcon, Type, File } from "lucide-react";
-import RichTextEditor from "./RichTextEditor";
+import dynamic from "next/dynamic";
+import {
+  X,
+  Upload,
+  Link as LinkIcon,
+  Type,
+  File,
+  Image as ImageIcon,
+} from "lucide-react";
+import { uploadFile } from "@/lib/data";
 
-// MOCK FUNCTION - This will be replaced by Firebase Storage
-const UploadFile = async ({ file }) => {
-  console.log("Simulating upload for:", file.name);
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-  const isImage = file.type.startsWith("image/");
-  // For non-image files, we can't create a preview URL this way, but it's fine for the mock.
-  return {
-    file_url: isImage
-      ? URL.createObjectURL(file)
-      : "https://mock.file.url/document.pdf",
-  };
-};
+// Dynamically import the RichTextEditor with SSR disabled
+const RichTextEditor = dynamic(() => import("./RichTextEditor"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[150px] rounded-xl bg-neumorphic-bg shadow-neumorphic-inset animate-pulse"></div>
+  ),
+});
 
 export default function CreatePostModal({ isOpen, onClose, onSubmit }) {
   const [formData, setFormData] = useState({
@@ -41,10 +44,11 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit }) {
 
     setThumbUploading(true);
     try {
-      const { file_url } = await UploadFile({ file });
+      const file_url = await uploadFile(file, "post-thumbnails");
       setFormData((prev) => ({ ...prev, thumbnail: file_url }));
     } catch (error) {
       console.error("Thumbnail upload failed:", error);
+      alert("Thumbnail upload failed.");
     }
     setThumbUploading(false);
   };
@@ -55,10 +59,11 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit }) {
 
     setFileUploading(true);
     try {
-      const { file_url } = await UploadFile({ file });
+      const file_url = await uploadFile(file, "post-content-files");
       setFormData((prev) => ({ ...prev, content: file_url }));
     } catch (error) {
       console.error("Content file upload failed:", error);
+      alert("Content file upload failed.");
     }
     setFileUploading(false);
   };
@@ -79,7 +84,6 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit }) {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Title and Description fields are identical to CreatePageModal */}
           <div>
             <label className="block text-sm font-medium text-neumorphic mb-2">
               Post Title *
@@ -90,7 +94,7 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit }) {
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, title: e.target.value }))
               }
-              className="w-full px-4 py-3 rounded-xl bg-neumorphic-bg shadow-neumorphic-inset text-neumorphic-text placeholder-neumorphic-text focus:outline-none"
+              className="w-full px-4 py-3 rounded-xl bg-neumorphic-bg shadow-neumorphic-inset text-neumorphic-text placeholder-neumorphic-text/70 focus:outline-none"
               placeholder="Enter post title"
               required
             />
@@ -107,21 +111,49 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit }) {
                   description: e.target.value,
                 }))
               }
-              className="w-full px-4 py-3 rounded-xl bg-neumorphic-bg shadow-neumorphic-inset text-neumorphic-text placeholder-neumorphic-text focus:outline-none resize-none"
+              className="w-full px-4 py-3 rounded-xl bg-neumorphic-bg shadow-neumorphic-inset text-neumorphic-text placeholder-neumorphic-text/70 focus:outline-none resize-none"
               placeholder="Enter post description"
               rows="2"
             />
           </div>
 
-          {/* Thumbnail Upload field is also similar */}
           <div>
             <label className="block text-sm font-medium text-neumorphic mb-2">
               Thumbnail Image (Optional)
             </label>
-            {/* ... copy from CreatePageModal.js or implement from scratch ... */}
+            <div className="flex items-center gap-4">
+              {formData.thumbnail ? (
+                <div className="w-16 h-16 rounded-lg overflow-hidden shadow-neumorphic-inset">
+                  <img
+                    src={formData.thumbnail}
+                    alt="Thumbnail"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="w-16 h-16 rounded-lg bg-neumorphic-bg shadow-neumorphic-inset flex items-center justify-center">
+                  <ImageIcon className="w-6 h-6 text-neumorphic-text" />
+                </div>
+              )}
+              <div className="flex-1">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleThumbnailUpload}
+                  className="hidden"
+                  id="post-thumbnail-upload"
+                />
+                <label
+                  htmlFor="post-thumbnail-upload"
+                  className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg btn-neumorphic shadow-neumorphic text-sm text-neumorphic-text cursor-pointer hover:shadow-neumorphic-soft active:shadow-neumorphic-pressed"
+                >
+                  <Upload className="w-4 h-4" />
+                  {thumbUploading ? "Uploading..." : "Upload Image"}
+                </label>
+              </div>
+            </div>
           </div>
 
-          {/* Content Type Selection */}
           <div>
             <label className="block text-sm font-medium text-neumorphic mb-2">
               Content Type *
@@ -155,7 +187,6 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit }) {
             </div>
           </div>
 
-          {/* Dynamic Content Input */}
           <div>
             <label className="block text-sm font-medium text-neumorphic mb-2">
               Content *
@@ -175,7 +206,7 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit }) {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, content: e.target.value }))
                 }
-                className="w-full px-4 py-3 rounded-xl bg-neumorphic-bg shadow-neumorphic-inset text-neumorphic-text placeholder-neumorphic-text focus:outline-none"
+                className="w-full px-4 py-3 rounded-xl bg-neumorphic-bg shadow-neumorphic-inset text-neumorphic-text placeholder-neumorphic-text/70 focus:outline-none"
                 placeholder="https://example.com"
                 required
               />
@@ -208,7 +239,6 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit }) {
             )}
           </div>
 
-          {/* Form Actions */}
           <div className="flex gap-4 pt-4">
             <button
               type="button"

@@ -1,20 +1,18 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import dynamic from "next/dynamic"; // 1. Import dynamic
 import { X, Upload, Link as LinkIcon, Type, File } from "lucide-react";
-import RichTextEditor from "./RichTextEditor";
 
-// MOCK FUNCTION - This will be replaced by Firebase Storage
-const UploadFile = async ({ file }) => {
-  console.log("Simulating upload for:", file.name);
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-  const isImage = file.type.startsWith("image/");
-  return {
-    file_url: isImage
-      ? URL.createObjectURL(file)
-      : "https://mock.file.url/updated-doc.pdf",
-  };
-};
+import { uploadFile } from "@/lib/data";
+
+// 2. Use dynamic import to load the editor only on the client-side
+const RichTextEditor = dynamic(() => import("./RichTextEditor"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[150px] rounded-xl bg-neumorphic-bg shadow-neumorphic-inset animate-pulse"></div>
+  ),
+});
 
 export default function EditPostModal({ isOpen, post, onClose, onSubmit }) {
   const [formData, setFormData] = useState({
@@ -45,7 +43,13 @@ export default function EditPostModal({ isOpen, post, onClose, onSubmit }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.title.trim() || !formData.content.trim()) return;
-    onSubmit(formData);
+
+    const dataToSend = {
+      ...formData,
+      order_index: Number(formData.order_index) || 0,
+    };
+
+    onSubmit(dataToSend);
   };
 
   const handleThumbnailUpload = async (e) => {
@@ -54,7 +58,7 @@ export default function EditPostModal({ isOpen, post, onClose, onSubmit }) {
 
     setThumbUploading(true);
     try {
-      const { file_url } = await UploadFile({ file });
+      const file_url = await uploadFile(file, "post-thumbnails");
       setFormData((prev) => ({ ...prev, thumbnail: file_url }));
     } catch (error) {
       console.error("Thumbnail upload failed:", error);
@@ -68,7 +72,7 @@ export default function EditPostModal({ isOpen, post, onClose, onSubmit }) {
 
     setFileUploading(true);
     try {
-      const { file_url } = await UploadFile({ file });
+      const file_url = await uploadFile(file, "post-content-files");
       setFormData((prev) => ({ ...prev, content: file_url }));
     } catch (error) {
       console.error("Content file upload failed:", error);
@@ -92,6 +96,7 @@ export default function EditPostModal({ isOpen, post, onClose, onSubmit }) {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* ... all your other form fields are correct ... */}
           <div>
             <label className="block text-sm font-medium text-neumorphic mb-2">
               Post Title *
@@ -132,12 +137,13 @@ export default function EditPostModal({ isOpen, post, onClose, onSubmit }) {
               type="number"
               min="0"
               value={formData.order_index}
-              onChange={(e) =>
+              onChange={(e) => {
+                const value = e.target.value;
                 setFormData((prev) => ({
                   ...prev,
-                  order_index: parseInt(e.target.value) || 0,
-                }))
-              }
+                  order_index: value === "" ? "" : parseInt(value, 10),
+                }));
+              }}
               className="w-full px-4 py-3 rounded-xl bg-neumorphic-bg shadow-neumorphic-inset text-neumorphic-text placeholder-neumorphic-text focus:outline-none"
             />
           </div>
@@ -193,7 +199,11 @@ export default function EditPostModal({ isOpen, post, onClose, onSubmit }) {
                   key={value}
                   type="button"
                   onClick={() =>
-                    setFormData((prev) => ({ ...prev, content_type: value }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      content_type: value,
+                      content: "",
+                    }))
                   }
                   className={`p-3 rounded-xl flex flex-col items-center justify-center gap-2 btn-neumorphic text-sm transition-all duration-200 ${
                     formData.content_type === value
