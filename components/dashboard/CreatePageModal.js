@@ -1,0 +1,152 @@
+"use client";
+
+import React, { useState } from "react";
+import { X, Upload, Image as ImageIcon } from "lucide-react";
+// Note: The UploadFile integration will be handled later. We'll simulate it for now.
+
+// MOCK FUNCTION - This will be replaced by Firebase Storage
+const UploadFile = async ({ file }) => {
+  console.log("Simulating upload for:", file.name);
+  await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate network delay
+  return { file_url: URL.createObjectURL(file) }; // Return a temporary local URL for preview
+};
+
+export default function CreatePageModal({ isOpen, onClose, onSubmit }) {
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    thumbnail: "",
+  });
+  const [uploading, setUploading] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.title.trim()) return;
+    onSubmit(formData);
+    // Reset form and close modal is handled by the parent component now
+  };
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      // This will use our mock function for now
+      const { file_url } = await UploadFile({ file });
+      setFormData((prev) => ({ ...prev, thumbnail: file_url }));
+    } catch (error) {
+      console.error("Upload failed:", error);
+      alert("Upload failed. See console for details.");
+    }
+    setUploading(false);
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4">
+      <div className="bg-neumorphic-bg rounded-2xl shadow-neumorphic p-6 w-full max-w-md">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold text-neumorphic">Create New Page</h2>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-lg btn-neumorphic shadow-neumorphic hover:shadow-neumorphic-soft active:shadow-neumorphic-pressed"
+          >
+            <X className="w-5 h-5 text-neumorphic-text" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-neumorphic mb-2">
+              Page Title *
+            </label>
+            <input
+              type="text"
+              value={formData.title}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, title: e.target.value }))
+              }
+              className="w-full px-4 py-3 rounded-xl bg-neumorphic-bg shadow-neumorphic-inset text-neumorphic-text placeholder-neumorphic-text focus:outline-none"
+              placeholder="Enter page title"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-neumorphic mb-2">
+              Description
+            </label>
+            <textarea
+              value={formData.description}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  description: e.target.value,
+                }))
+              }
+              className="w-full px-4 py-3 rounded-xl bg-neumorphic-bg shadow-neumorphic-inset text-neumorphic-text placeholder-neumorphic-text focus:outline-none resize-none"
+              placeholder="Enter page description"
+              rows="3"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-neumorphic mb-2">
+              Thumbnail Image
+            </label>
+            <div className="flex items-center gap-4">
+              {formData.thumbnail ? (
+                <div className="w-16 h-16 rounded-lg overflow-hidden shadow-neumorphic-inset">
+                  <img
+                    src={formData.thumbnail}
+                    alt="Thumbnail"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="w-16 h-16 rounded-lg bg-neumorphic-bg shadow-neumorphic-inset flex items-center justify-center">
+                  <ImageIcon className="w-6 h-6 text-neumorphic-text" />
+                </div>
+              )}
+              <div className="flex-1">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  id="thumbnail-upload"
+                />
+                <label
+                  htmlFor="thumbnail-upload"
+                  className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg btn-neumorphic shadow-neumorphic text-sm text-neumorphic-text cursor-pointer hover:shadow-neumorphic-soft active:shadow-neumorphic-pressed"
+                >
+                  <Upload className="w-4 h-4" />
+                  {uploading ? "Uploading..." : "Upload Image"}
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-4 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-3 rounded-xl btn-neumorphic shadow-neumorphic text-neumorphic-text hover:shadow-neumorphic-soft active:shadow-neumorphic-pressed"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 py-3 rounded-xl btn-neumorphic shadow-neumorphic text-neumorphic-text font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={!formData.title.trim() || uploading}
+            >
+              Create Page
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

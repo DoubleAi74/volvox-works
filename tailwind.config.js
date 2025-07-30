@@ -7,10 +7,19 @@ module.exports = {
   ],
   theme: {
     extend: {
-      backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-conic":
-          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+      colors: {
+        "neumorphic-bg": "#e0e0e0",
+        "neumorphic-text": "#8a8a8a",
+        "neumorphic-shadow-light": "#ffffff",
+        "neumorphic-shadow-dark": "#bebebe",
+      },
+      boxShadow: {
+        neumorphic: "8px 8px 16px #bebebe, -8px -8px 16px #ffffff",
+        "neumorphic-inset":
+          "inset 6px 6px 12px #bebebe, inset -6px -6px 12px #ffffff",
+        "neumorphic-pressed":
+          "inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff",
+        "neumorphic-soft": "4px 4px 8px #bebebe, -4px -4px 8px #ffffff",
       },
     },
   },
