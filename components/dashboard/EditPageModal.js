@@ -10,6 +10,7 @@ export default function EditPageModal({ isOpen, page, onClose, onSubmit }) {
     description: "",
     thumbnail: "",
     order_index: 0,
+    isPrivate: false,
   });
   const [uploading, setUploading] = useState(false);
 
@@ -119,6 +120,27 @@ export default function EditPageModal({ isOpen, page, onClose, onSubmit }) {
               }}
               className="w-full px-4 py-3 rounded-xl bg-neumorphic-bg shadow-neumorphic-inset text-neumorphic-text placeholder-neumorphic-text/70 focus:outline-none"
             />
+          </div>
+
+          <div className="flex items-center gap-3 pt-2">
+            <input
+              type="checkbox"
+              id="isPrivateEditCheckbox"
+              checked={formData.isPrivate}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  isPrivate: e.target.checked,
+                }))
+              }
+              className="h-4 w-4 rounded bg-neumorphic-bg shadow-neumorphic-inset appearance-none checked:bg-blue-500 cursor-pointer"
+            />
+            <label
+              htmlFor="isPrivateEditCheckbox"
+              className="text-sm font-medium text-neumorphic cursor-pointer"
+            >
+              Make this page private
+            </label>
           </div>
 
           <div>

@@ -7,8 +7,12 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+
 import { useRouter } from "next/navigation";
+
+import { auth, db } from "@/lib/firebase"; // 1. Import db
+import { doc, getDoc, setDoc } from "firebase/firestore"; // 2. Import firestore functions
+import { getUserByUsername } from "@/lib/data";
 
 const AuthContext = createContext();
 
@@ -18,15 +22,24 @@ export const AuthContextProvider = ({ children }) => {
   const router = useRouter();
 
   useEffect(() => {
-    // onAuthStateChanged is a listener that triggers when the user's auth state changes
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // User is signed in.
-        setUser({
-          uid: user.uid,
-          email: user.email,
-          displayName: user.displayName,
-        });
+        // User is signed in, fetch their user document from Firestore
+        const userDocRef = doc(db, "users", user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        if (userDocSnap.exists()) {
+          // Combine auth data and firestore data
+          setUser({
+            uid: user.uid,
+            email: user.email,
+            ...userDocSnap.data(), // This will add the 'username' field
+          });
+        } else {
+          // This case can happen if user exists in Auth but not in Firestore DB.
+          // For robustness, you could log them out or create the doc here.
+          console.error("User document not found in Firestore!");
+          setUser(null);
+        }
       } else {
         // User is signed out.
         setUser(null);
@@ -34,12 +47,36 @@ export const AuthContextProvider = ({ children }) => {
       setLoading(false);
     });
 
-    // Cleanup subscription on unmount
     return () => unsubscribe();
   }, []);
 
-  const signup = (email, password) => {
-    return createUserWithEmailAndPassword(auth, email, password);
+  const signup = async (email, password, username) => {
+    if (!username || username.length < 3) {
+      throw new Error("Username must be at least 3 characters long.");
+    }
+    const formattedUsername = username.toLowerCase();
+
+    // Check if username is already taken
+    const userDoc = await getUserByUsername(formattedUsername);
+    if (userDoc) {
+      throw new Error("Username is already taken.");
+    }
+
+    // Create the user in Firebase Auth
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+
+    // Create the user document in the 'users' collection in Firestore
+    await setDoc(doc(db, "users", userCredential.user.uid), {
+      uid: userCredential.user.uid,
+      email: userCredential.user.email,
+      username: formattedUsername,
+    });
+
+    return userCredential;
   };
 
   const login = (email, password) => {
@@ -58,7 +95,6 @@ export const AuthContextProvider = ({ children }) => {
   );
 };
 
-// Custom hook to use the AuthContext
 export const useAuth = () => {
   return useContext(AuthContext);
 };

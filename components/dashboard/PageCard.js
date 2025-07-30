@@ -5,11 +5,17 @@ import Link from "next/link";
 import { FileText, Calendar, Trash2, Edit3 } from "lucide-react"; // 1. Import Edit3 icon
 import { format } from "date-fns";
 
-export default function PageCard({ page, onDelete, onEdit }) {
-  // 2. Accept onEdit prop
+export default function PageCard({
+  page,
+  onDelete,
+  onEdit,
+  isOwner,
+  username,
+}) {
+  // Accept new props
   return (
     <div className="group relative">
-      <Link href={`/page/${page.id}`}>
+      <Link href={`/${username}/${page.slug}`}>
         {/* ... (The inner content of the link is unchanged) ... */}
         <div className="p-6 rounded-2xl bg-neumorphic-bg shadow-neumorphic hover:shadow-neumorphic-soft transition-all duration-300 cursor-pointer">
           {page.thumbnail ? (
@@ -41,26 +47,28 @@ export default function PageCard({ page, onDelete, onEdit }) {
       </Link>
 
       {/* 3. Add the edit button next to the delete button */}
-      <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            onEdit();
-          }}
-          className="p-2 rounded-lg bg-neumorphic-bg shadow-neumorphic hover:shadow-neumorphic-pressed"
-        >
-          <Edit3 className="w-4 h-4 text-neumorphic-text" />
-        </button>
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            onDelete();
-          }}
-          className="p-2 rounded-lg bg-neumorphic-bg shadow-neumorphic hover:shadow-neumorphic-pressed"
-        >
-          <Trash2 className="w-4 h-4 text-red-500" />
-        </button>
-      </div>
+      {isOwner && (
+        <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              onEdit();
+            }}
+            className="p-2 rounded-lg bg-neumorphic-bg shadow-neumorphic hover:shadow-neumorphic-pressed"
+          >
+            <Edit3 className="w-4 h-4 text-neumorphic-text" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              onDelete();
+            }}
+            className="p-2 rounded-lg bg-neumorphic-bg shadow-neumorphic hover:shadow-neumorphic-pressed"
+          >
+            <Trash2 className="w-4 h-4 text-red-500" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

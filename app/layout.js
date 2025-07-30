@@ -1,7 +1,7 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
-// import "react-quill/dist/quill.snow.css"; // Import Quill CSS globally
 import { AuthContextProvider } from "@/context/AuthContext";
+import Header from "@/components/Header"; // 1. Import the Header
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -14,7 +14,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AuthContextProvider>{children}</AuthContextProvider>
+        <AuthContextProvider>
+          <Header /> {/* 2. Render the Header here */}
+          <main className="flex-1">{children}</main>
+        </AuthContextProvider>
       </body>
     </html>
   );

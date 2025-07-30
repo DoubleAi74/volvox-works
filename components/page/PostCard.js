@@ -74,26 +74,28 @@ export default function PostCard({ post, onEdit, onDelete }) {
         </div>
       </PostContentWrapper>
 
-      <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            onEdit();
-          }}
-          className="p-2 rounded-lg bg-neumorphic-bg shadow-neumorphic hover:shadow-neumorphic-pressed"
-        >
-          <Edit3 className="w-4 h-4 text-neumorphic-text" />
-        </button>
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            onDelete();
-          }}
-          className="p-2 rounded-lg bg-neumorphic-bg shadow-neumorphic hover:shadow-neumorphic-pressed"
-        >
-          <Trash2 className="w-4 h-4 text-red-500" />
-        </button>
-      </div>
+      {isOwner && (
+        <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              onEdit();
+            }}
+            className="p-2 rounded-lg bg-neumorphic-bg shadow-neumorphic hover:shadow-neumorphic-pressed"
+          >
+            <Edit3 className="w-4 h-4 text-neumorphic-text" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              onDelete();
+            }}
+            className="p-2 rounded-lg bg-neumorphic-bg shadow-neumorphic hover:shadow-neumorphic-pressed"
+          >
+            <Trash2 className="w-4 h-4 text-red-500" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

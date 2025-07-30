@@ -9,6 +9,7 @@ export default function CreatePageModal({ isOpen, onClose, onSubmit }) {
     title: "",
     description: "",
     thumbnail: "",
+    isPrivate: false, // Default to public
   });
   const [uploading, setUploading] = useState(false);
 
@@ -83,6 +84,27 @@ export default function CreatePageModal({ isOpen, onClose, onSubmit }) {
               placeholder="Enter page description"
               rows="3"
             />
+          </div>
+
+          <div className="flex items-center gap-3 pt-2">
+            <input
+              type="checkbox"
+              id="isPrivateCheckbox"
+              checked={formData.isPrivate}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  isPrivate: e.target.checked,
+                }))
+              }
+              className="h-4 w-4 rounded bg-neumorphic-bg shadow-neumorphic-inset appearance-none checked:bg-blue-500 cursor-pointer"
+            />
+            <label
+              htmlFor="isPrivateCheckbox"
+              className="text-sm font-medium text-neumorphic cursor-pointer"
+            >
+              Make this page private
+            </label>
           </div>
 
           <div>

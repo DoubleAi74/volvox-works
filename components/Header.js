@@ -24,13 +24,14 @@ export default function Header() {
     <header className="bg-neumorphic-bg border-b border-neumorphic-shadow-dark/50 shadow-neumorphic-soft">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link href="/" className="flex items-center gap-3">
+          <Link
+            href={user.username ? `/${user.username}` : "/"}
+            className="flex items-center gap-3"
+          >
             <div className="w-10 h-10 rounded-lg bg-neumorphic-bg shadow-neumorphic flex items-center justify-center">
               <Home className="w-5 h-5 text-neumorphic-text" />
             </div>
-            <h1 className="text-xl font-bold text-neumorphic">
-              Personal Dashboard
-            </h1>
+            <h1 className="text-xl font-bold text-neumorphic">Dashboard</h1>
           </Link>
 
           <div className="flex items-center gap-4">
