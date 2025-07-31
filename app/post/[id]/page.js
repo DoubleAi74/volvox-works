@@ -47,7 +47,7 @@ export default function TextPost({ params }) {
             dangerouslySetInnerHTML={{ __html: post.content }}
             style={{
               color: "#6d6d6d", // A slightly darker shade for readability
-              lineHeight: "1.7",
+              lineHeight: "1.701",
             }}
           />
         </div>
