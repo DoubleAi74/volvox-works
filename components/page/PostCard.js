@@ -32,7 +32,7 @@ const PostContentWrapper = ({ post, children }) => {
   return <div>{children}</div>;
 };
 
-export default function PostCard({ post, onEdit, onDelete }) {
+export default function PostCard({ post, onEdit, onDelete, isOwner }) {
   const ContentIcon = contentTypeIcons[post.content_type] || FileText;
 
   return (
