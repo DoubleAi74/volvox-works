@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { X, Upload, Image as ImageIcon } from "lucide-react";
 import { uploadFile } from "@/lib/data";
+import ImageWithLoader from "@/components/ImageWithLoader";
 
 export default function EditPageModal({ isOpen, page, onClose, onSubmit }) {
   const [formData, setFormData] = useState({
@@ -150,9 +151,9 @@ export default function EditPageModal({ isOpen, page, onClose, onSubmit }) {
             <div className="flex items-center gap-4">
               {formData.thumbnail ? (
                 <div className="w-16 h-16 rounded-lg overflow-hidden shadow-neumorphic-inset">
-                  <img
+                  <ImageWithLoader
                     src={formData.thumbnail}
-                    alt="Thumbnail"
+                    alt="Thumbnail Preview"
                     className="w-full h-full object-cover"
                   />
                 </div>

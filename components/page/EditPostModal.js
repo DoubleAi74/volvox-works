@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic"; // 1. Import dynamic
 import { X, Upload, Link as LinkIcon, Type, File } from "lucide-react";
+import ImageWithLoader from "@/components/ImageWithLoader";
 
 import { uploadFile } from "@/lib/data";
 
@@ -155,9 +156,9 @@ export default function EditPostModal({ isOpen, post, onClose, onSubmit }) {
             <div className="flex items-center gap-4">
               {formData.thumbnail ? (
                 <div className="w-16 h-16 rounded-lg overflow-hidden shadow-neumorphic-inset">
-                  <img
+                  <ImageWithLoader
                     src={formData.thumbnail}
-                    alt="Thumbnail"
+                    alt="Thumbnail Preview"
                     className="w-full h-full object-cover"
                   />
                 </div>

@@ -1,17 +1,28 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, Upload, Image as ImageIcon } from "lucide-react";
 import { uploadFile } from "@/lib/data";
+import ImageWithLoader from "@/components/ImageWithLoader";
+
+const initialFormData = {
+  title: "",
+  description: "",
+  thumbnail: "",
+  isPrivate: false,
+};
 
 export default function CreatePageModal({ isOpen, onClose, onSubmit }) {
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    thumbnail: "",
-    isPrivate: false, // Default to public
-  });
+  const [formData, setFormData] = useState(initialFormData);
   const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    // When the modal is opened, reset the form data and uploading status
+    if (isOpen) {
+      setFormData(initialFormData);
+      setUploading(false);
+    }
+  }, [isOpen]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -114,9 +125,9 @@ export default function CreatePageModal({ isOpen, onClose, onSubmit }) {
             <div className="flex items-center gap-4">
               {formData.thumbnail ? (
                 <div className="w-16 h-16 rounded-lg overflow-hidden shadow-neumorphic-inset">
-                  <img
+                  <ImageWithLoader
                     src={formData.thumbnail}
-                    alt="Thumbnail"
+                    alt="Thumbnail Preview"
                     className="w-full h-full object-cover"
                   />
                 </div>

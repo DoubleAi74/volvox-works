@@ -164,6 +164,10 @@ export default function PageSlugView({ params }) {
                 key={post.id}
                 post={post}
                 isOwner={isOwner}
+                // ADD THESE TWO LINES BACK
+                username={params.username}
+                pageSlug={params.pageSlug}
+                //
                 onEdit={() => setEditingPost(post)}
                 onDelete={() => handleDeletePost(post.id)}
               />

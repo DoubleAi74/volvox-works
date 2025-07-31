@@ -18,9 +18,11 @@ const contentTypeIcons = {
   url: ExternalLink,
 };
 
-const PostContentWrapper = ({ post, children }) => {
+const PostContentWrapper = ({ post, children, username, pageSlug }) => {
   if (post.content_type === "text") {
-    return <Link href={`/post/${post.id}`}>{children}</Link>;
+    return (
+      <Link href={`/${username}/${pageSlug}/${post.slug}`}>{children}</Link>
+    );
   }
   if (post.content_type === "url" || post.content_type === "file") {
     return (
@@ -32,12 +34,19 @@ const PostContentWrapper = ({ post, children }) => {
   return <div>{children}</div>;
 };
 
-export default function PostCard({ post, onEdit, onDelete, isOwner }) {
+export default function PostCard({
+  post,
+  onEdit,
+  onDelete,
+  isOwner,
+  username,
+  pageSlug,
+}) {
   const ContentIcon = contentTypeIcons[post.content_type] || FileText;
 
   return (
     <div className="group relative">
-      <PostContentWrapper post={post}>
+      <PostContentWrapper post={post} username={username} pageSlug={pageSlug}>
         <div className="p-6 rounded-2xl bg-neumorphic-bg shadow-neumorphic hover:shadow-neumorphic-soft transition-all duration-300 cursor-pointer h-full flex flex-col">
           {post.thumbnail ? (
             <div className="w-full h-32 mb-4 rounded-xl overflow-hidden shadow-neumorphic-inset">

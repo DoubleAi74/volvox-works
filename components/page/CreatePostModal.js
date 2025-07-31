@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import ImageWithLoader from "@/components/ImageWithLoader";
+import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import {
   X,
@@ -20,17 +21,27 @@ const RichTextEditor = dynamic(() => import("./RichTextEditor"), {
   ),
 });
 
-export default function CreatePostModal({ isOpen, onClose, onSubmit }) {
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    thumbnail: "",
-    content_type: "text",
-    content: "",
-  });
+const initialFormData = {
+  title: "",
+  description: "",
+  thumbnail: "",
+  content_type: "text",
+  content: "",
+};
 
+export default function CreatePostModal({ isOpen, onClose, onSubmit }) {
+  const [formData, setFormData] = useState(initialFormData);
   const [thumbUploading, setThumbUploading] = useState(false);
   const [fileUploading, setFileUploading] = useState(false);
+
+  useEffect(() => {
+    // When the modal is opened, reset the form data and uploading statuses
+    if (isOpen) {
+      setFormData(initialFormData);
+      setThumbUploading(false);
+      setFileUploading(false);
+    }
+  }, [isOpen]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -124,9 +135,9 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit }) {
             <div className="flex items-center gap-4">
               {formData.thumbnail ? (
                 <div className="w-16 h-16 rounded-lg overflow-hidden shadow-neumorphic-inset">
-                  <img
+                  <ImageWithLoader
                     src={formData.thumbnail}
-                    alt="Thumbnail"
+                    alt="Thumbnail Preview"
                     className="w-full h-full object-cover"
                   />
                 </div>
