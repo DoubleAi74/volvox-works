@@ -124,7 +124,7 @@ export default function UserDashboard({ params }) {
   if (!profileUser) {
     return (
       <div className="p-16 text-center text-xl text-neumorphic">
-        Looking for '{params.username}'&apos s page.
+        Looking for {params.username}&apos s page.
       </div>
     );
   }
