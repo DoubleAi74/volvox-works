@@ -47,9 +47,9 @@ export default function PostCard({
   return (
     <div className="group relative">
       <PostContentWrapper post={post} username={username} pageSlug={pageSlug}>
-        <div className="p-6 rounded-2xl bg-neumorphic-bg shadow-neumorphic hover:shadow-neumorphic-soft transition-all duration-300 cursor-pointer h-full flex flex-col">
+        <div className="p-1 rounded-2xl bg-neumorphic-bg shadow-neumorphic hover:shadow-neumorphic-soft transition-all duration-300 cursor-pointer h-full flex flex-col">
           {post.thumbnail ? (
-            <div className="w-full h-32 mb-4 rounded-xl overflow-hidden shadow-neumorphic-inset">
+            <div className="w-full h-32 mb-1 rounded-t-xl rounded-b-md overflow-hidden shadow-neumorphic-inset">
               <img
                 src={post.thumbnail}
                 alt={post.title}
@@ -57,28 +57,30 @@ export default function PostCard({
               />
             </div>
           ) : (
-            <div className="w-full h-32 mb-4 rounded-xl bg-neumorphic-bg shadow-neumorphic-inset flex items-center justify-center">
+            <div className="w-full h-32 mb-1 rounded-t-xl rounded-b-md bg-neumorphic-bg shadow-neumorphic-inset flex items-center justify-center">
               <ContentIcon className="w-8 h-8 text-neumorphic-text" />
             </div>
           )}
 
-          <div className="flex-grow">
-            <h3 className="font-semibold text-neumorphic text-lg mb-2 truncate">
-              {post.title}
-            </h3>
-            {post.description && (
-              <p className="text-sm text-neumorphic-text mb-3 line-clamp-2">
-                {post.description}
-              </p>
-            )}
-          </div>
-
-          <div className="flex items-center justify-between text-xs text-neumorphic-text mt-2">
-            <div className="flex items-center gap-1">
-              <ContentIcon className="w-3 h-3" />
-              <span className="capitalize">{post.content_type}</span>
+          <div className="px-4 pb-4 pt-1">
+            <div className="flex-grow">
+              <h3 className="font-semibold text-neumorphic text-lg mb-2 truncate">
+                {post.title}
+              </h3>
+              {post.description && (
+                <p className="text-sm text-neumorphic-text mb-3 line-clamp-2">
+                  {post.description}
+                </p>
+              )}
             </div>
-            <span>{format(new Date(post.created_date), "MMM d, yyyy")}</span>
+
+            <div className="flex items-center justify-between text-xs text-neumorphic-text mt-2">
+              <div className="flex items-center gap-1">
+                <ContentIcon className="w-3 h-3" />
+                <span className="capitalize">{post.content_type}</span>
+              </div>
+              <span>{format(new Date(post.created_date), "MMM d, yyyy")}</span>
+            </div>
           </div>
         </div>
       </PostContentWrapper>
