@@ -80,13 +80,15 @@ export default function PageSlugView({ params }) {
   };
 
   const handleDeletePost = async (postId) => {
-    if (!isOwner) return;
+    if (!isOwner || !page) return; // Added !page guard
     if (confirm("Are you sure you want to delete this post?")) {
       try {
-        await deletePost(postId);
+        await deletePost(postId, posts);
+        // Ensure we pass page.id to refreshPosts AFTER deletion
         await refreshPosts(page.id);
       } catch (error) {
         console.error("Error deleting post:", error);
+        alert("Error deleting post.");
       }
     }
   };
