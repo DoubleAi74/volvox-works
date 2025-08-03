@@ -287,7 +287,7 @@ export default function EditPostModal({ isOpen, post, onClose, onSubmit }) {
           </button>
           <button
             type="submit"
-            form="create-post-form" // This associates the button with the form
+            form="edit-post-form" // This associates the button with the form
             className="flex-1 py-3 rounded-xl btn-neumorphic shadow-neumorphic text-neumorphic-text font-medium disabled:opacity-50"
             disabled={
               !formData.title.trim() ||
@@ -296,7 +296,7 @@ export default function EditPostModal({ isOpen, post, onClose, onSubmit }) {
               fileUploading
             }
           >
-            Create Post
+            Update Post
           </button>
         </div>
       </div>
