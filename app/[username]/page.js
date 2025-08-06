@@ -124,7 +124,7 @@ export default function UserDashboard({ params }) {
   if (!profileUser) {
     return (
       <div className="p-16 text-center text-xl text-neumorphic">
-        Looking for {params.username}&apos s page.
+        Looking for {params.username + "'s"} page.
       </div>
     );
   }
@@ -136,7 +136,7 @@ export default function UserDashboard({ params }) {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-neumorphic mb-2">
-              {params.username}&apos s Pages
+              {params.username + "'s"} Pages
             </h1>
             {isOwner && (
               <p className="text-neumorphic">
