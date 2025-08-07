@@ -21,7 +21,7 @@ export default function Header() {
   if (!user) return null; // Don't render header if no user
 
   return (
-    <header className="bg-neumorphic-bg border-b border-neumorphic-shadow-dark/50 shadow-neumorphic-soft">
+    <header className="bg-red-200 border-b border-neumorphic-shadow-dark/50 shadow-neumorphic-soft">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link
