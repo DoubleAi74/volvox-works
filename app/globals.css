@@ -2,22 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html,
 body {
-  background-color: #e0e0e0;
-}
-
-/* Neumorphic Shadow Styles */
-.shadow-neumorphic {
-  box-shadow: 8px 8px 16px #bebebe, -8px -8px 16px #ffffff;
-}
-.shadow-neumorphic-inset {
-  box-shadow: inset 6px 6px 12px #bebebe, inset -6px -6px 12px #ffffff;
-}
-.shadow-neumorphic-pressed {
-  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
-}
-.shadow-neumorphic-soft {
-  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
+  background-color: #faebd9;
+  overscroll-behavior-y: none; /* Disables vertical scroll-chaining and rubber banding */
 }
 
 /* Neumorphic Text Styles */
@@ -28,14 +16,10 @@ body {
 
 /* Neumorphic Button Base Styles */
 .btn-neumorphic {
-  background: #e0e0e0;
+  background: #fffef8;
   border: none;
   transition: all 0.2s ease;
 }
-
-/* We will use Tailwind's hover: and active: variants instead of these */
-/* .btn-neumorphic:hover { ... } */
-/* .btn-neumorphic:active { ... } */
 
 /* React Quill Rich Text Editor Styles */
 .ql-snow {

@@ -10,6 +10,7 @@ export default function PageCard({
   onDelete,
   onEdit,
   isOwner,
+  editModeOn,
   username,
 }) {
   // Accept new props
@@ -17,9 +18,9 @@ export default function PageCard({
     <div className="group relative">
       <Link href={`/${username}/${page.slug}`}>
         {/* ... (The inner content of the link is unchanged) ... */}
-        <div className="p-6 rounded-2xl bg-neumorphic-bg shadow-neumorphic hover:shadow-neumorphic-soft transition-all duration-300 cursor-pointer">
+        <div className="p-2 rounded-lg bg-[#f7f3ed] shadow-md hover:shadow-neumorphic-soft transition-all duration-300  h-full mb-[-10px] cursor-pointer">
           {page.thumbnail ? (
-            <div className="w-full h-32 mb-4 rounded-xl overflow-hidden shadow-neumorphic-inset">
+            <div className="w-full aspect-[4/3] mb-4 rounded-md overflow-hidden ">
               <img
                 src={page.thumbnail}
                 alt={page.title}
@@ -27,34 +28,30 @@ export default function PageCard({
               />
             </div>
           ) : (
-            <div className="w-full h-32 mb-4 rounded-xl bg-neumorphic-bg shadow-neumorphic-inset flex items-center justify-center">
+            <div className="w-full aspect-[4/3] shadow-md mb-4 rounded-md bg-neumorphic-bg flex items-center justify-center">
               <FileText className="w-8 h-8 text-neumorphic-text" />
             </div>
           )}
-          <h3 className="font-semibold text-neumorphic text-lg mb-2 truncate">
+          <h3 className=" px-2 font-semibold text-[#5c5c5b] text-lg mb-2 truncate">
             {page.title}
           </h3>
           {page.description && (
-            <p className="text-sm text-neumorphic-text mb-3 line-clamp-2">
+            <p className=" px-2 text-sm text-neumorphic-text mb-3 line-clamp-2">
               {page.description}
             </p>
           )}
-          <div className="flex items-center text-xs text-neumorphic-text">
-            <Calendar className="w-3 h-3 mr-1" />
-            {format(new Date(page.created_date), "MMM d, yyyy")}
-          </div>
         </div>
       </Link>
 
       {/* 3. Add the edit button next to the delete button */}
-      {isOwner && (
-        <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
+      {isOwner && editModeOn && (
+        <div className="absolute top-4 right-4 flex gap-1 opacity-70 group-hover:opacity-100 transition-all duration-200">
           <button
             onClick={(e) => {
               e.preventDefault();
               onEdit();
             }}
-            className="p-2 rounded-lg bg-neumorphic-bg shadow-neumorphic hover:shadow-neumorphic-pressed"
+            className="p-2 rounded-lg bg-[#f0efee] shadow-md hover:shadow-neumorphic-pressed"
           >
             <Edit3 className="w-4 h-4 text-neumorphic-text" />
           </button>
@@ -63,7 +60,7 @@ export default function PageCard({
               e.preventDefault();
               onDelete();
             }}
-            className="p-2 rounded-lg bg-neumorphic-bg shadow-neumorphic hover:shadow-neumorphic-pressed"
+            className="p-2 rounded-lg bg-[#f0efee] shadow-md hover:shadow-neumorphic-pressed"
           >
             <Trash2 className="w-4 h-4 text-red-500" />
           </button>

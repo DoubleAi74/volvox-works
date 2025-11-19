@@ -1,8 +1,11 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import DashHeader from "@/components/dashboard/DashHeader";
+import DashboardInfoEditor from "@/components/dashboard/DashboardInfoEditor";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+
 import { useAuth } from "@/context/AuthContext";
-import { Plus } from "lucide-react";
+import { Plus, LogOut, LogIn, User as UserIcon } from "lucide-react";
 import PageCard from "@/components/dashboard/PageCard";
 import CreatePageModal from "@/components/dashboard/CreatePageModal";
 import EditPageModal from "@/components/dashboard/EditPageModal";
@@ -14,13 +17,34 @@ import {
   getUserByUsername,
 } from "@/lib/data";
 
+import { useRouter } from "next/navigation";
+
+import { changeHexGlobal, fetchHex } from "@/lib/data";
+
+import Image from "next/image";
+
 export default function UserDashboard({ params }) {
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, logout } = useAuth();
   const [profileUser, setProfileUser] = useState(null);
   const [pages, setPages] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingPage, setEditingPage] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showMeditationModal, setShowMeditationModal] = useState(false);
+  const router = useRouter();
+  const [openCol, setOpenCol] = useState(false);
+
+  const [editOn, setEditOn] = useState(false);
+
+  const [headerColor, setHeaderColor] = useState("#00502F");
+
+  const handleHeaderColorChange = (newHex) => {
+    setHeaderColor(newHex); // 1. Update parent state (triggers re-render)
+    localStorage.setItem("headerHex", newHex); // 2. Update local storage
+    if (profileUser) {
+      changeHexGlobal(profileUser.uid, newHex); // 3. Update database
+    }
+  };
 
   const isOwner =
     currentUser && profileUser && currentUser.uid === profileUser.uid;
@@ -34,6 +58,15 @@ export default function UserDashboard({ params }) {
     },
     [isOwner]
   );
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.push("/login");
+    } catch (error) {
+      console.error("Failed to log out:", error);
+    }
+  };
 
   // This single useEffect now handles the entire loading process.
   useEffect(() => {
@@ -51,6 +84,16 @@ export default function UserDashboard({ params }) {
         // Fetch pages, telling the function whether to include private ones
         const userPages = await getPages(user.uid, isCurrentUserOwner);
         setPages(userPages);
+
+        try {
+          const saved = localStorage.getItem("headerHex");
+          const fetchedHex = await fetchHex(user.uid);
+          setHeaderColor(fetchedHex || saved || "#00502F");
+        } catch (e) {
+          console.error("Failed to fetch hex:", e);
+          const saved = localStorage.getItem("headerHex");
+          setHeaderColor(saved || "#00502F");
+        }
       }
 
       // Only set loading to false after all async operations are complete.
@@ -116,44 +159,99 @@ export default function UserDashboard({ params }) {
   if (loading) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center">
-        <div className="w-16 h-16 rounded-full bg-neumorphic-bg shadow-neumorphic-inset animate-pulse"></div>
+        <div className="w-36 h-36 rounded-full bg-[#f7f3ed] flex items-center justify-center shadow-neumorphic-inset animate-pulse">
+          {/* <Image
+            src="/logo-lotus.png" // <- file in public/
+            alt="Logo"
+            width={100}
+            height={100}
+          /> */}
+        </div>
       </div>
     );
   }
 
   if (!profileUser) {
     return (
-      <div className="p-16 text-center text-xl text-neumorphic">
-        Looking for {params.username + "'s"} page.
-      </div>
+      <>
+        <div className="p-6 min-h-[80px]"></div>
+        <div
+          // ref={header1WrapperRef}
+          className="fixed top-0 left-0 right-0 z-20 pt-2 px-0"
+        >
+          <DashHeader
+            title={`${params.username}`}
+            defaultHex="#00502F"
+            alpha={0.85}
+            uid={profileUser?.uid}
+            editModeOn={editOn}
+            hexColor={headerColor}
+            // No style prop needed here, the wrapper handles positioning
+          />
+        </div>
+
+        <div className="p-16 text-center text-xl text-neumorphic">
+          Looking for {params.username + "'s"} page.
+        </div>
+      </>
     );
   }
 
-  // The rest of the component's JSX remains the same.
   return (
-    <div className="p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-neumorphic mb-2">
-              {params.username + "'s"} Pages
-            </h1>
-            {isOwner && (
-              <p className="text-neumorphic">
-                This is your public dashboard. Welcome!
-              </p>
-            )}
+    <>
+      <div
+        // ref={header1WrapperRef}
+        className="fixed top-0 left-0 right-0 z-20 pt-2 px-0"
+      >
+        <DashHeader
+          title={`${params.username}`}
+          defaultHex="#00502F"
+          alpha={0.85}
+          uid={profileUser?.uid}
+          editModeOn={editOn}
+          hexColor={headerColor}
+          onColorChange={handleHeaderColorChange}
+          // No style prop needed here, the wrapper handles positioning
+        />
+      </div>
+      {/* First information content */}
+      <div className="pt-6">
+        <div className="min-h-[120px]"></div>
+        {/* FIRST HEADER: Fixed at the top, but will fade out */}
+        {/* Header 1 Wrapper - FIXED */}
+
+        <div className="max-w-7xl mx-auto">
+          <div className="flex">
+            <div className=" w-full">
+              <DashboardInfoEditor
+                uid={profileUser?.uid}
+                canEdit={isOwner}
+                editOn={editOn}
+              />
+            </div>
           </div>
-          {isOwner && (
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl btn-neumorphic shadow-neumorphic text-neumorphic-text font-medium hover:shadow-neumorphic-soft active:shadow-neumorphic-pressed"
-            >
-              <Plus className="w-5 h-5" />
-              New Page
-            </button>
-          )}
         </div>
+      </div>
+
+      {/* Header 2 Wrapper - STICKY */}
+      <div
+        // ref={header2WrapperRef}
+        className="sticky top-[-2px] left-0 right-0 z-10 pt-2 px-0 "
+      >
+        <DashHeader
+          title={""}
+          defaultHex="#166534" // Different color to see the change
+          alpha={0.75}
+          uid={profileUser?.uid}
+          editModeOn={false}
+          hexColor={headerColor}
+          heightPx={20}
+        />
+      </div>
+
+      {/* Second section below the second header */}
+      <div className="p-6">
+        {/* Pages displayed in a grid */}
 
         {pages.length === 0 ? (
           <div className="text-center py-16">
@@ -173,6 +271,7 @@ export default function UserDashboard({ params }) {
                 key={page.id}
                 page={page}
                 isOwner={isOwner}
+                editModeOn={editOn}
                 username={params.username}
                 onDelete={() => handleDeletePage(page.id)}
                 onEdit={() => setEditingPage(page)}
@@ -180,23 +279,145 @@ export default function UserDashboard({ params }) {
             ))}
           </div>
         )}
-
-        {isOwner && (
-          <>
-            <CreatePageModal
-              isOpen={showCreateModal}
-              onClose={() => setShowCreateModal(false)}
-              onSubmit={handleCreatePage}
-            />
-            <EditPageModal
-              isOpen={!!editingPage}
-              page={editingPage}
-              onClose={() => setEditingPage(null)}
-              onSubmit={handleEditPage}
-            />
-          </>
-        )}
       </div>
-    </div>
+
+      {/* Justs adds scrolable height to the screen */}
+      <div className="p-6 min-h-[150vh]"></div>
+
+      {params.username === "the-lotus-seed" && (
+        <button
+          onClick={() => router.push("./the-lotus-seed/meditations?meditate=1")}
+          aria-label="Meditate now"
+          className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 mb-6  px-7 py-5 rounded-xl shadow-md border-2 border-[#80a4a0]/30 hover:border-[#58817c] bg-[#aad8d3] text-[#545656] font-medium hover:shadow-neumorphic-hover active:shadow-neumorphic-pressed"
+        >
+          {/* optional icon */}
+          {/* <Plus classNa gme="w-4 h-4" /> */}
+          Meditate now
+        </button>
+      )}
+
+      {isOwner ? (
+        <>
+          {/* Mobile buttons view */}
+          <div className="flex md:hidden items-center gap-4 mt-4 fixed bottom-6 right-8 z-[100]">
+            {/* New Page Button */}
+            {editOn && (
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="flex items-center gap-2 px-6 py-2 rounded-xl bg-[#f7f3ed] shadow-md text-neumorphic-text font-medium hover:shadow-neumorphic-soft active:shadow-neumorphic-pressed h-[44px]" // same height across all
+              >
+                <Plus className="w-5 h-5" />
+                New Page
+              </button>
+            )}
+
+            {/* Toggle edit mode */}
+
+            {editOn ? (
+              <button
+                onClick={() => setEditOn(!editOn)}
+                className="flex  text-sm items-center gap-2 px-4 py-2 rounded-xl bg-[#0e4f19] shadow-md text-neumorphic-text font-medium hover:shadow-neumorphic-soft active:shadow-neumorphic-pressed h-[44px]" // same height across all
+              >
+                <div className="text-white">Edit: on</div>
+              </button>
+            ) : (
+              <button
+                onClick={() => setEditOn(!editOn)}
+                className="flex text-sm items-center gap-2 px-4 py-2 rounded-xl bg-[#f7f3ed] shadow-md text-neumorphic-text font-medium hover:shadow-neumorphic-soft active:shadow-neumorphic-pressed h-[44px]" // same height across all
+              >
+                <div>Edit: off</div>
+              </button>
+            )}
+
+            {/* User Info + Logout */}
+            <div className="flex items-center gap-4">
+              <button
+                onClick={handleLogout}
+                className="flex items-center justify-center px-6 py-2 rounded-xl bg-[#f7f3ed] shadow-md text-neumorphic-text hover:shadow-neumorphic-soft active:shadow-neumorphic-pressed h-[44px]"
+                title="Log Out"
+              >
+                <LogOut className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Desktop buttons view */}
+
+          <div className="hidden md:flex items-center gap-4 mt-4 fixed bottom-6 right-8 z-[100]">
+            {/* New Page Button */}
+
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="flex items-center gap-2 px-6 py-2 rounded-xl bg-[#f7f3ed] shadow-md text-neumorphic-text font-medium hover:shadow-neumorphic-soft active:shadow-neumorphic-pressed h-[44px]" // same height across all
+            >
+              <Plus className="w-5 h-5" />
+              New Page
+            </button>
+
+            {/* Toggle edit mode */}
+
+            {editOn ? (
+              <button
+                onClick={() => setEditOn(!editOn)}
+                className="flex  text-sm items-center gap-2 px-4 py-2 rounded-xl bg-[#0e4f19] shadow-md text-neumorphic-text font-medium hover:shadow-neumorphic-soft active:shadow-neumorphic-pressed h-[44px]" // same height across all
+              >
+                <div className="text-white">Edit: on</div>
+              </button>
+            ) : (
+              <button
+                onClick={() => setEditOn(!editOn)}
+                className="flex text-sm items-center gap-2 px-4 py-2 rounded-xl bg-[#f7f3ed] shadow-md text-neumorphic-text font-medium hover:shadow-neumorphic-soft active:shadow-neumorphic-pressed h-[44px]" // same height across all
+              >
+                <div>Edit: off</div>
+              </button>
+            )}
+
+            {/* User Info + Logout */}
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 px-6 py-2 rounded-xl bg-[#f7f3ed] shadow-md text-neumorphic-text h-[44px]">
+                <UserIcon className="w-5 h-5" />
+                <span className="text-sm">{currentUser.email}</span>
+              </div>
+
+              <button
+                onClick={handleLogout}
+                className="flex items-center justify-center px-6 py-2 rounded-xl bg-[#f7f3ed] shadow-md text-neumorphic-text hover:shadow-neumorphic-soft active:shadow-neumorphic-pressed h-[44px]"
+                title="Log Out"
+              >
+                <LogOut className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className=" flex items-center gap-4 mt-4 fixed bottom-6 right-8 z-[100]">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => router.push("/login")}
+              className="flex text-sm font-medium items-center gap-2 hover:shadow-neumorphic-soft px-6 py-2 rounded-xl bg-[#f7f3ed] shadow-md text-neumorphic-text h-[44px]"
+            >
+              <UserIcon className="w-5 h-5" />
+              <span className="text-sm">Login</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {isOwner && (
+        <>
+          <CreatePageModal
+            isOpen={showCreateModal}
+            onClose={() => setShowCreateModal(false)}
+            onSubmit={handleCreatePage}
+          />
+          <EditPageModal
+            isOpen={!!editingPage}
+            page={editingPage}
+            onClose={() => setEditingPage(null)}
+            onSubmit={handleEditPage}
+          />
+        </>
+      )}
+    </>
   );
 }

@@ -82,7 +82,7 @@ export default function EditPageModal({ isOpen, page, onClose, onSubmit }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-[200] p-4">
       <div className="bg-neumorphic-bg rounded-2xl shadow-neumorphic p-6 w-full max-w-md">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-neumorphic">Edit Page</h2>
@@ -160,13 +160,32 @@ export default function EditPageModal({ isOpen, page, onClose, onSubmit }) {
                   isPrivate: e.target.checked,
                 }))
               }
-              className="h-4 w-4 rounded bg-neumorphic-bg shadow-neumorphic-inset appearance-none checked:bg-blue-500 cursor-pointer"
+              className="h-4 w-4 rounded bg-neumorphic-bg shadow-neumorphic-inset appearance-none checked:bg-blue-900 cursor-pointer"
             />
             <label
               htmlFor="isPrivateEditCheckbox"
               className="text-sm font-medium text-neumorphic cursor-pointer"
             >
               Make this page private
+            </label>
+
+            <input
+              type="checkbox"
+              id="isPublicEditCheckbox"
+              checked={formData.isPublic}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  isPublic: e.target.checked,
+                }))
+              }
+              className="h-4 w-4 rounded bg-neumorphic-bg shadow-neumorphic-inset appearance-none checked:bg-blue-900 cursor-pointer"
+            />
+            <label
+              htmlFor="isPublicEditCheckbox"
+              className="text-sm font-medium text-neumorphic cursor-pointer"
+            >
+              Make this page public
             </label>
           </div>
 
