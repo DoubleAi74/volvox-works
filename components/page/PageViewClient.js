@@ -28,6 +28,7 @@ import EditPostModal from "@/components/page/EditPostModal";
 import BulkUploadModal from "@/components/page/BulkUploadModal";
 import PageInfoEditor from "@/components/page/PageInfoEditor";
 import PhotoShowModal from "@/components/page/PhotoShowModal";
+import PostFileModal from "@/components/page/PostFileModal";
 
 import { lighten, hexToRgba } from "@/components/dashboard/DashHeader";
 import { useTheme } from "@/context/ThemeContext";
@@ -1187,6 +1188,12 @@ export default function PageViewClient({
                 onSubmit={handleCreatePost}
               />
             )}
+
+            {/* <PostFileModal
+              isOpen={true}
+              onClose={() => setShowCreateModal(false)}
+              onSubmit={handleCreatePost}
+            /> */}
 
             {isOwner && (
               <EditPostModal
