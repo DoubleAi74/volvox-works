@@ -628,11 +628,25 @@ export default function PageViewClient({
       const updatedList = currentPosts.map((p) => {
         if (p.id === targetId) {
           // The edited post itself
+          // Determine optimistic content value:
+          // - If switching TO file type with a new file, keep old content until upload completes
+          // - If switching TO url type, use urlInput or content
+          // - If switching TO photo-only, clear content
+          let optimisticContent = editingPost.content;
+          if (postData.content_type === "url") {
+            optimisticContent = postData.urlInput || postData.content || "";
+          } else if (postData.content_type === "photo-only") {
+            optimisticContent = "";
+          }
+          // For file type, we keep old content until the upload completes in the queue
+
           return {
             ...editingPost,
             title: postData.title,
             description: postData.description,
             blurDataURL: postData.blurDataURL || editingPost.blurDataURL,
+            content_type: postData.content_type,
+            content: optimisticContent,
             order_index: newIndex,
             isOptimistic: true,
             isUploadingHeic: postData.needsServerBlur && postData.pendingFile,
@@ -687,23 +701,43 @@ export default function PageViewClient({
           );
         }
 
-        const { pendingFile, needsServerBlur, ...cleanPostData } = postData;
+        // Handle content based on type (same pattern as handleCreatePost)
+        let finalContent = postData.content || "";
+
+        if (postData.content_type === "file" && postData.contentFile) {
+          // Upload content file to postFiles folder (50MB limit)
+          const contentPath = `users/${currentUser.uid}/postFiles`;
+          finalContent = await uploadFile(
+            postData.contentFile,
+            contentPath,
+            50 * 1024 * 1024
+          );
+        } else if (postData.content_type === "url") {
+          // Use urlInput if provided (when switching from non-URL type), otherwise use existing content
+          finalContent = postData.urlInput || postData.content || "";
+        } else if (postData.content_type === "photo-only") {
+          finalContent = "";
+        }
+
+        const { pendingFile, needsServerBlur, contentFile, urlInput, contentFileName, ...cleanPostData } = postData;
         await updatePost(
           targetId,
           {
             ...cleanPostData,
             thumbnail: thumbnailUrl,
             blurDataURL: blurDataURL || "",
+            content: finalContent,
           },
           previousPosts
         );
 
-        // Clear optimistic flag after successful update and re-sort
+        // Clear optimistic flag and update content after successful update
         setPosts((prev) => {
           const updated = prev.map((p) =>
             p.id === targetId
               ? {
                   ...p,
+                  content: finalContent, // Update with the final content (R2 URL for files, URL string, or empty)
                   isOptimistic: false,
                   isUploadingHeic: false,
                 }
