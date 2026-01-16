@@ -196,14 +196,55 @@ export default function CreatePostModal({
       <div className="bg-neutral-900/90 backdrop-blur-[4px] border border-white/[0.08] rounded-[5px] p-6 w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl shadow-black/50">
         {/* Title and close button */}
         <div className="flex justify-between items-center mb-6 flex-shrink-0">
-          <h2 className="text-lg font-semibold text-white">Post An Image</h2>
-          <button
-            onClick={onClose}
-            className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-[2px] bg-white/[0.06] hover:bg-white/12 active:bg-white/15 text-white/50 hover:text-white/90 transition-all duration-150"
-          >
-            <X className="w-4 h-4" />
-            <span className="text-sm">Close</span>
-          </button>
+          <h2 className="text-lg font-semibold text-white">
+            {formData.content_type === "photo-only"
+              ? "Post an image"
+              : formData.content_type === "url"
+              ? "Add a URL link"
+              : "Display a file"}
+          </h2>
+          <div className="flex items-center gap-3">
+            {/* Content Type Tabs */}
+            <div className="flex items-center gap-1 p-1 mr-3 rounded-[3px] bg-white/[0.03]">
+              {[
+                { value: "photo-only", icon: ImageIcon, label: "Photo" },
+                { value: "url", icon: LinkIcon, label: "URL" },
+                { value: "file", icon: File, label: "File" },
+              ].map(({ value, icon: Icon, label }) => {
+                const isActive = formData.content_type === value;
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        content_type: value,
+                        content: "",
+                        contentFile: null,
+                        contentFileName: "",
+                      }))
+                    }
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-[2px] text-xs font-medium transition-all duration-150 ${
+                      isActive
+                        ? "bg-white/10 text-white/90 shadow-sm shadow-black/20"
+                        : "text-white/40 hover:text-white/60 hover:bg-white/[0.04]"
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">{label}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <button
+              onClick={onClose}
+              className="flex items-center gap-1.5 py-1.5 px-2.5 rounded-[2px] bg-white/[0.06] hover:bg-white/12 active:bg-white/15 text-white/50 hover:text-white/90 transition-all duration-150"
+            >
+              <X className="w-4 h-4" />
+              <span className="text-sm">Close</span>
+            </button>
+          </div>
         </div>
 
         <div className="flex-grow overflow-y-auto pr-2">
@@ -274,9 +315,15 @@ export default function CreatePostModal({
 
                 {/* Button Group Wrapper */}
                 <div className="flex-1 relative">
-                  <div className="flex gap-1 sm:gap-2">
-                    {/* Select Image Button (2/3 width) */}
-                    <div className="flex-[3]">
+                  <div className="flex gap-1 sm:gap-2 items-center">
+                    {/* Select Image Button */}
+                    <div
+                      className={
+                        formData.content_type === "photo-only"
+                          ? "flex-[3]"
+                          : "flex-1"
+                      }
+                    >
                       <input
                         type="file"
                         accept="image/*"
@@ -302,32 +349,85 @@ export default function CreatePostModal({
                       </label>
                     </div>
 
-                    {/* Bulk Button (1/3 width) */}
-                    <button
-                      type="button"
-                      onClick={onToMultiple}
-                      className="flex-[1] flex items-center justify-center gap-2 px-4 mr-[1px] py-2.5 rounded-[2px] bg-white/[0.06] border border-white/10 text-sm text-white/60 hover:bg-white/10 hover:text-white/80 hover:border-white/15 active:bg-white/15 transition-all duration-150"
-                    >
-                      <span className="hidden sm:block">Multiple</span>
-                      <Images className="w-5 h-5" />
-                    </button>
+                    {/* Multiple Button - only shown for photo-only mode */}
+                    {formData.content_type === "photo-only" && (
+                      <button
+                        type="button"
+                        onClick={onToMultiple}
+                        className="flex-[1] flex items-center justify-center gap-2 px-4 mr-[1px] py-2.5 rounded-[2px] bg-white/[0.06] border border-white/10 text-sm text-white/60 hover:bg-white/10 hover:text-white/80 hover:border-white/15 active:bg-white/15 transition-all duration-150"
+                      >
+                        <span className="hidden sm:block">Multiple</span>
+                        <Images className="w-5 h-5" />
+                      </button>
+                    )}
+
+                    {/* File Upload Button - only shown for file mode */}
+                    {formData.content_type === "file" && (
+                      <div className="flex-1">
+                        <input
+                          type="file"
+                          onChange={handleContentFileSelect}
+                          className="hidden"
+                          id="content-file-upload"
+                        />
+                        <label
+                          htmlFor="content-file-upload"
+                          className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-[2px] bg-white/[0.06] border border-white/10 text-sm text-white/60 cursor-pointer hover:bg-white/10 hover:text-white/80 hover:border-white/15 active:bg-white/15 transition-all duration-150"
+                        >
+                          <File className="w-4 h-4 flex-shrink-0" />
+                          <span className="truncate">
+                            {formData.contentFile
+                              ? "Change File"
+                              : "Select File"}
+                          </span>
+                        </label>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Filename: Absolutely positioned so it doesn't push the buttons up */}
-                  {formData.fileName && (
-                    <p
-                      className="absolute top-full mt-1 text-xs text-white/40 truncate max-w-full"
-                      title={formData.fileName}
-                    >
-                      {formData.fileName}
-                    </p>
+                  {/* Filenames: Absolutely positioned so they don't push the buttons up */}
+                  {(formData.fileName || formData.contentFileName) && (
+                    <div className="absolute top-full left-0 right-0 mt-1 flex justify-between text-xs">
+                      <span
+                        className="text-white/40 truncate max-w-[50%] ml-1"
+                        title={formData.fileName}
+                      >
+                        {formData.fileName}
+                      </span>
+                      {formData.contentFileName && (
+                        <span
+                          className="text-emerald-400/70 truncate max-w-[50%] text-right mr-1"
+                          title={formData.contentFileName}
+                        >
+                          {formData.contentFileName}
+                        </span>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>
+
+              {/* URL Input - shown beneath upload when URL mode is selected */}
+              {formData.content_type === "url" && (
+                <div className="mt-4">
+                  <input
+                    type="url"
+                    value={formData.content}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        content: e.target.value,
+                      }))
+                    }
+                    className="w-full px-4 py-2.5 rounded-[3px] bg-white/5 border border-white/10 text-white/90 placeholder-white/30 focus:outline-none focus:border-white/20 focus:bg-white/[0.06] transition-colors duration-150 focus:ring-1 focus:ring-white/10"
+                    placeholder="https://example.com"
+                  />
+                </div>
+              )}
             </div>
 
             {/* Description input */}
-            <div className="pt-2">
+            <div className="pt-0">
               {" "}
               {/* Added slight padding to prevent filename overlap if present */}
               <label className="block text-sm font-medium text-white/60 mb-2">
@@ -346,95 +446,6 @@ export default function CreatePostModal({
                 minHeight="80px"
               />
             </div>
-
-            {/* Content Type Selector */}
-            <div>
-              <label className="block text-sm font-medium text-white/60 mb-2">
-                Attach Content (Optional)
-              </label>
-              <div className="grid grid-cols-3 gap-2">
-                {[
-                  { value: "photo-only", icon: ImageIcon, label: "Photo Only" },
-                  { value: "url", icon: LinkIcon, label: "URL" },
-                  { value: "file", icon: File, label: "File" },
-                ].map(({ value, icon: Icon, label }) => {
-                  const isActive = formData.content_type === value;
-                  return (
-                    <button
-                      key={value}
-                      type="button"
-                      onClick={() =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          content_type: value,
-                          content: "",
-                          contentFile: null,
-                          contentFileName: "",
-                        }))
-                      }
-                      className={`p-3 rounded-[3px] flex flex-col items-center justify-center gap-2 text-sm border transition-all duration-150 ${
-                        isActive
-                          ? "bg-white/10 border-white/20 text-white/90 shadow-sm shadow-black/20"
-                          : "bg-white/[0.04] border-transparent text-white/50 hover:bg-white/[0.08] hover:text-white/70"
-                      }`}
-                    >
-                      <Icon className="w-5 h-5" />
-                      <span>{label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Conditional Content Input */}
-            {formData.content_type === "url" && (
-              <div>
-                <label className="block text-sm font-medium text-white/60 mb-2">
-                  URL
-                </label>
-                <input
-                  type="url"
-                  value={formData.content}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      content: e.target.value,
-                    }))
-                  }
-                  className="w-full px-4 py-2.5 rounded-[3px] bg-white/5 border border-white/10 text-white/90 placeholder-white/30 focus:outline-none focus:border-white/20 focus:bg-white/[0.06] transition-colors duration-150 focus:ring-1 focus:ring-white/10"
-                  placeholder="https://example.com"
-                />
-              </div>
-            )}
-
-            {formData.content_type === "file" && (
-              <div>
-                <label className="block text-sm font-medium text-white/60 mb-2">
-                  File (max 50MB)
-                </label>
-                <div className="space-y-2">
-                  <input
-                    type="file"
-                    onChange={handleContentFileSelect}
-                    className="hidden"
-                    id="content-file-upload"
-                  />
-                  <label
-                    htmlFor="content-file-upload"
-                    className="flex items-center justify-center gap-2 px-4 py-3 rounded-[2px] bg-white/[0.06] border border-white/10 text-white/60 cursor-pointer w-full hover:bg-white/10 hover:text-white/80 hover:border-white/15 active:bg-white/15 transition-all duration-150"
-                  >
-                    <Upload className="w-4 h-4" />
-                    {formData.contentFile ? "Change File" : "Upload File"}
-                  </label>
-                  {formData.contentFileName && (
-                    <div className="flex items-center gap-2 px-3 py-2 rounded-[2px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400/90 text-xs truncate">
-                      <File className="w-3 h-3 flex-shrink-0" />
-                      <span className="truncate">{formData.contentFileName}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
           </form>
         </div>
 
