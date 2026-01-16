@@ -6,7 +6,7 @@ import { ThemeContextProvider } from "@/context/ThemeContext";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Volvox Pics",
+  title: "Volvox Works",
   description: "Collect your memories",
 };
 

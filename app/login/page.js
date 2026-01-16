@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { lowercaseDashed, findAvailableUsernameTag } from "@/lib/data";
 import NextLink from "next/link";
+import ActionButton from "@/components/ActionButton";
 
 // ----------------------------------------------------------------------
 // 1. PASTE YOUR BASE64 STRINGS HERE
@@ -162,7 +163,7 @@ export default function LoginPage() {
             {/* Header */}
             <div className="text-center">
               <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">
-                Volvox Pictures
+                Volvox Works
               </h1>
               <p className="mt-5 mb-6 text-zinc-300">
                 {isSigningUp
@@ -205,7 +206,7 @@ export default function LoginPage() {
                           </span>
                         ) : suggestedTag ? (
                           <span className="text-zinc-500">
-                            volvox.pics/
+                            volvox.works/
                             <span className="ml-1 font-semibold text-green-400">
                               {suggestedTag}
                             </span>
@@ -293,6 +294,9 @@ export default function LoginPage() {
                 Don&apos;t have an account? Join the waitlist.
               </NextLink>
             </div>
+            <ActionButton onClick={() => setIsSigningUp(!isSigningUp)}>
+              Toggle sign up
+            </ActionButton>
           </div>
         </div>
       </div>

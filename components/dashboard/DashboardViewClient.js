@@ -764,7 +764,7 @@ export default function DashboardViewClient({ profileUser, initialPages }) {
                   </h3>
                 </div>
               ) : (
-                [1, 2, 3, 4, 5, 6, 7, 8].map((i) => <PageSkeleton key={i} />)
+                <div></div>
               )}
             </div>
           ) : (
@@ -815,7 +815,7 @@ export default function DashboardViewClient({ profileUser, initialPages }) {
           >
             {/* Cleaned up: Removed the 'false &&' Dev Overlay block entirely */}
 
-            {true && (
+            {false && (
               <ActionButton
                 onClick={() => setDebugOverlay(!debugOverlay)}
                 active={debugOverlay}

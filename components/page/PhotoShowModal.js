@@ -9,7 +9,7 @@ const getCloudflareUrl = (src, width, quality = 75) => {
   try {
     const url = new URL(src);
     const path = url.pathname;
-    return `https://files.volvox.pics/cdn-cgi/image/width=${width},quality=${quality},format=auto${path}`;
+    return `https://files.volvox.works/cdn-cgi/image/width=${width},quality=${quality},format=auto${path}`;
   } catch (e) {
     return src;
   }

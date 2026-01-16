@@ -268,10 +268,10 @@ function DashHeaderInner(
             <div className="flex justify-between items-baseline ">
               <div className="mt-1 text-sm font-bold w-4/5 text-xs">
                 {isCheckingUser ? (
-                  <span className="animate-pulse">volvox.pics/...</span>
+                  <span className="animate-pulse">volvox.works/...</span>
                 ) : suggestedTag ? (
                   <span className="bg-gray-900">
-                    volvox.pics/{suggestedTag}
+                    volvox.works/{suggestedTag}
                   </span>
                 ) : (
                   <span>Type to check availability</span>

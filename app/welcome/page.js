@@ -108,7 +108,7 @@ export default function WaitlistPage() {
             <div className="text-center">
               <h1 className="flex flex-wrap items-center justify-center gap-1">
                 <span className="text-3xl md:text-4xl font-semibold text-white">
-                  volvox.pics
+                  volvox.works
                 </span>
                 <span className="text-2xl md:text-3xl text-gray-400 whitespace-nowrap">
                   /your-profile

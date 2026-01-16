@@ -14,7 +14,7 @@ export async function POST(req) {
     const path = url.pathname;
 
     // Using 200px width with moderate blur for better visual quality while keeping size small
-    const blurURL = `https://files.volvox.pics/cdn-cgi/image/width=200,quality=60,blur=2,format=jpeg${path}`;
+    const blurURL = `https://files.volvox.works/cdn-cgi/image/width=200,quality=60,blur=2,format=jpeg${path}`;
 
     const res = await fetch(blurURL);
 

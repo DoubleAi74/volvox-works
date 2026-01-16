@@ -816,7 +816,7 @@ export default function PageViewClient({
     try {
       const url = new URL(post.thumbnail);
       const path = url.pathname;
-      const modalSizeUrl = `https://files.volvox.pics/cdn-cgi/image/width=${width},quality=75,format=auto${path}`;
+      const modalSizeUrl = `https://files.volvox.works/cdn-cgi/image/width=${width},quality=75,format=auto${path}`;
 
       // Preload via hidden image element
       const img = new window.Image();
