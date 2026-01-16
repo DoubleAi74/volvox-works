@@ -383,7 +383,7 @@ export default function PageViewClient({
       thumbnail: "",
       blurDataURL: postData.blurDataURL || "",
       content_type: postData.content_type,
-      content: postData.content,
+      content: postData.content_type === "url" ? postData.content : "",
       page_id: page.id,
       order_index: newOrderIndex,
       created_date: new Date(),
@@ -398,8 +398,13 @@ export default function PageViewClient({
     addToQueue({
       type: "create",
       actionFn: async () => {
+        // 1. Upload thumbnail (10MB limit)
         const securePath = `users/${currentUser.uid}/post-thumbnails`;
-        const thumbnailUrl = await uploadFile(postData.pendingFile, securePath);
+        const thumbnailUrl = await uploadFile(
+          postData.pendingFile,
+          securePath,
+          10 * 1024 * 1024
+        );
         let blurDataURL = postData.blurDataURL;
 
         if (postData.needsServerBlur) {
@@ -418,13 +423,34 @@ export default function PageViewClient({
           );
         }
 
+        // 2. Handle content based on type
+        let finalContentType = postData.content_type;
+        let finalContent = "";
+
+        if (postData.content_type === "file" && postData.contentFile) {
+          // Upload content file to postFiles folder (50MB limit)
+          const contentPath = `users/${currentUser.uid}/postFiles`;
+          finalContent = await uploadFile(
+            postData.contentFile,
+            contentPath,
+            50 * 1024 * 1024
+          );
+        } else if (postData.content_type === "url" && postData.content) {
+          finalContent = postData.content; // URL string
+        } else {
+          // photo-only (or no content provided)
+          finalContentType = "photo-only";
+          finalContent = "";
+        }
+
+        // 3. Create post with correct content_type and content
         const createdPost = await createPost({
           title: postData.title,
           description: postData.description,
           thumbnail: thumbnailUrl,
           blurDataURL: blurDataURL || "",
-          content_type: postData.content_type,
-          content: postData.content,
+          content_type: finalContentType,
+          content: finalContent,
           page_id: page.id,
           order_index: newOrderIndex,
           clientId: clientId,

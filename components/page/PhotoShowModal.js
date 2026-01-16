@@ -2,7 +2,14 @@
 
 import { useEffect, useRef, useState, useLayoutEffect } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  X,
+  ExternalLink,
+  Download,
+  FileText,
+} from "lucide-react";
 
 // Helper to generate Cloudflare CDN URL
 const getCloudflareUrl = (src, width, quality = 75) => {
@@ -213,6 +220,31 @@ export default function PhotoShowModal({
     e.stopPropagation();
   };
 
+  const handleDownload = async (url) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+
+      // Extract filename from URL
+      const urlPath = new URL(url).pathname;
+      const filename = urlPath.split("/").pop() || "download";
+
+      // Create a temporary link and trigger download
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("Download failed:", error);
+      // Fallback: open in new tab
+      window.open(url, "_blank");
+    }
+  };
+
   return (
     <>
       {/* Backdrop with blur */}
@@ -248,13 +280,50 @@ export default function PhotoShowModal({
                 {post.title}
               </h2>
 
-              <button
-                onClick={handleCloseClick}
-                className="flex items-center focus:outline-none space-x-2 shrink-0 px-2 py-1 text-sm text-neutral-400 bg-neutral-800 hover:bg-neutral-700 rounded-md transition-all border border-neutral-700"
-              >
-                <p>Close</p>
-                <X size={15} />
-              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                {/* URL button - opens link in new tab */}
+                {post.content_type === "url" && post.content && (
+                  <a
+                    href={post.content}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center focus:outline-none space-x-2 px-2 py-1 text-sm text-neutral-400 bg-neutral-800 hover:bg-neutral-700 rounded-md transition-all border border-neutral-700"
+                  >
+                    <p>Open Link</p>
+                    <ExternalLink size={15} />
+                  </a>
+                )}
+
+                {/* File buttons - open and download */}
+                {post.content_type === "file" && post.content && (
+                  <>
+                    <a
+                      href={post.content}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center focus:outline-none space-x-2 px-2 py-1 text-sm text-neutral-400 bg-neutral-800 hover:bg-neutral-700 rounded-md transition-all border border-neutral-700"
+                    >
+                      <p>Open</p>
+                      <FileText size={15} />
+                    </a>
+                    <button
+                      onClick={() => handleDownload(post.content)}
+                      className="flex items-center focus:outline-none space-x-2 px-2 py-1 text-sm text-neutral-400 bg-neutral-800 hover:bg-neutral-700 rounded-md transition-all border border-neutral-700"
+                    >
+                      <p>Download</p>
+                      <Download size={15} />
+                    </button>
+                  </>
+                )}
+
+                <button
+                  onClick={handleCloseClick}
+                  className="flex items-center focus:outline-none space-x-2 px-2 py-1 text-sm text-neutral-400 bg-neutral-800 hover:bg-neutral-700 rounded-md transition-all border border-neutral-700"
+                >
+                  <p>Close</p>
+                  <X size={15} />
+                </button>
+              </div>
             </div>
 
             {/* SCROLL CONTAINER */}

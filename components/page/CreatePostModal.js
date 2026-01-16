@@ -1,16 +1,13 @@
 "use client";
 
-import ImageWithLoader from "@/components/ImageWithLoader";
 import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import {
   X,
   Upload,
   Link as LinkIcon,
-  Type,
   File,
   Image as ImageIcon,
-  Loader2,
   Images,
 } from "lucide-react";
 import { processImage } from "@/lib/processImage";
@@ -25,14 +22,20 @@ const RichTextEditor = dynamic(() => import("./RichTextEditor"), {
   ),
 });
 
+// File size limits
+const THUMBNAIL_MAX_SIZE = 10 * 1024 * 1024; // 10MB
+const CONTENT_FILE_MAX_SIZE = 50 * 1024 * 1024; // 50MB
+
 const initialFormData = {
   title: "",
   description: "",
   blurDataURL: "", // Generated client-side (null for HEIC until uploaded)
   pendingFile: null, // The file waiting to be uploaded
   needsServerBlur: false, // Flag for HEIC files that need server-side blur
-  content_type: "text",
-  content: "",
+  content_type: "photo-only", // "photo-only" | "url" | "file"
+  content: "", // URL string or empty
+  contentFile: null, // File object for content file uploads
+  contentFileName: "", // Display name for content file
 };
 
 export default function CreatePostModal({
@@ -95,6 +98,12 @@ export default function CreatePostModal({
     const rawFile = e.target.files[0];
     if (!rawFile) return;
 
+    // Validate file size (10MB limit for thumbnails)
+    if (rawFile.size > THUMBNAIL_MAX_SIZE) {
+      alert("Thumbnail image must be less than 10MB.");
+      return;
+    }
+
     let userId = null;
     try {
       userId = user?.uid;
@@ -133,6 +142,23 @@ export default function CreatePostModal({
     setIsProcessing(false);
   };
 
+  const handleContentFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file size (50MB limit for content files)
+    if (file.size > CONTENT_FILE_MAX_SIZE) {
+      alert("Content file must be less than 50MB.");
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      contentFile: file,
+      contentFileName: file.name,
+    }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (isSubmitting) return;
@@ -150,7 +176,8 @@ export default function CreatePostModal({
       pendingFile: formData.pendingFile,
       needsServerBlur: formData.needsServerBlur, // Tell parent this needs server blur
       content_type: formData.content_type,
-      content: formData.content,
+      content: formData.content, // URL string (for "url" type)
+      contentFile: formData.contentFile, // File object (for "file" type)
     });
 
     // Close the modal immediately
@@ -319,6 +346,95 @@ export default function CreatePostModal({
                 minHeight="80px"
               />
             </div>
+
+            {/* Content Type Selector */}
+            <div>
+              <label className="block text-sm font-medium text-white/60 mb-2">
+                Attach Content (Optional)
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { value: "photo-only", icon: ImageIcon, label: "Photo Only" },
+                  { value: "url", icon: LinkIcon, label: "URL" },
+                  { value: "file", icon: File, label: "File" },
+                ].map(({ value, icon: Icon, label }) => {
+                  const isActive = formData.content_type === value;
+                  return (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          content_type: value,
+                          content: "",
+                          contentFile: null,
+                          contentFileName: "",
+                        }))
+                      }
+                      className={`p-3 rounded-[3px] flex flex-col items-center justify-center gap-2 text-sm border transition-all duration-150 ${
+                        isActive
+                          ? "bg-white/10 border-white/20 text-white/90 shadow-sm shadow-black/20"
+                          : "bg-white/[0.04] border-transparent text-white/50 hover:bg-white/[0.08] hover:text-white/70"
+                      }`}
+                    >
+                      <Icon className="w-5 h-5" />
+                      <span>{label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Conditional Content Input */}
+            {formData.content_type === "url" && (
+              <div>
+                <label className="block text-sm font-medium text-white/60 mb-2">
+                  URL
+                </label>
+                <input
+                  type="url"
+                  value={formData.content}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      content: e.target.value,
+                    }))
+                  }
+                  className="w-full px-4 py-2.5 rounded-[3px] bg-white/5 border border-white/10 text-white/90 placeholder-white/30 focus:outline-none focus:border-white/20 focus:bg-white/[0.06] transition-colors duration-150 focus:ring-1 focus:ring-white/10"
+                  placeholder="https://example.com"
+                />
+              </div>
+            )}
+
+            {formData.content_type === "file" && (
+              <div>
+                <label className="block text-sm font-medium text-white/60 mb-2">
+                  File (max 50MB)
+                </label>
+                <div className="space-y-2">
+                  <input
+                    type="file"
+                    onChange={handleContentFileSelect}
+                    className="hidden"
+                    id="content-file-upload"
+                  />
+                  <label
+                    htmlFor="content-file-upload"
+                    className="flex items-center justify-center gap-2 px-4 py-3 rounded-[2px] bg-white/[0.06] border border-white/10 text-white/60 cursor-pointer w-full hover:bg-white/10 hover:text-white/80 hover:border-white/15 active:bg-white/15 transition-all duration-150"
+                  >
+                    <Upload className="w-4 h-4" />
+                    {formData.contentFile ? "Change File" : "Upload File"}
+                  </label>
+                  {formData.contentFileName && (
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-[2px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400/90 text-xs truncate">
+                      <File className="w-3 h-3 flex-shrink-0" />
+                      <span className="truncate">{formData.contentFileName}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </form>
         </div>
 
