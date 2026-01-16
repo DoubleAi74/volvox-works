@@ -91,15 +91,6 @@ export default function LoginPage() {
     }
   };
 
-  // Loading Screen
-  if (loading && !user) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-black">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-500 border-t-white" />
-      </div>
-    );
-  }
-
   return (
     <div className="relative min-h-screen overflow-hidden font-sans text-white bg-black">
       {/* ----------------------------------
@@ -138,8 +129,8 @@ export default function LoginPage() {
             decoding="async"
             className="
             relative h-full w-full object-cover
-            opacity-0
-            motion-safe:animate-[fadeInBlur_1.5s_cubic-bezier(0.16,1,0.3,1)_forwards]
+            
+            motion-safe:animate-[fadeInBlur_1s]
           "
           />
         </picture>
