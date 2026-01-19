@@ -13,7 +13,7 @@ export default function PageInfoEditor({
   const [serverText, setServerText] = useState(initialData);
 
   const [loading, setLoading] = useState(
-    !initialData && initialData !== "" && !!pid
+    !initialData && initialData !== "" && !!pid,
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
@@ -104,7 +104,7 @@ export default function PageInfoEditor({
             className={`${structuralStyles} animate-pulse ${
               isEditing
                 ? "bg-neutral-100/70 border-neutral-400/70 text-transparent select-none"
-                : "bg-neutral-100/50 border-transparent text-neutral-900/90 shadow-sm"
+                : "bg-neutral-100/50 border-transparent text-neutral-900 shadow-sm"
             }`}
           >
             &nbsp;
@@ -116,7 +116,7 @@ export default function PageInfoEditor({
               className={`${structuralStyles} ${transitionStyles} ${
                 isEditing
                   ? "bg-neutral-100/70 border-neutral-400/70 text-transparent select-none"
-                  : "bg-neutral-100/50 border-transparent text-neutral-900/90 shadow-sm"
+                  : "bg-neutral-100/50 border-transparent text-neutral-900 shadow-sm"
               }`}
               aria-hidden={isEditing}
             >
@@ -143,7 +143,7 @@ export default function PageInfoEditor({
               className={`
                 ${structuralStyles}
                 absolute inset-0 z-10
-                bg-transparent border-transparent text-neutral-800
+                bg-transparent border-transparent text-neutral-900
                 focus:ring-2 focus:ring-blue-100/50
                 ${
                   isEditing
@@ -162,7 +162,7 @@ export default function PageInfoEditor({
               <label className="text-xs text-neutral-500/60 font-medium bg-white/50 px-1.5 py-0.5 rounded-[2px] shadow-sm border border-neutral-100/50">
                 {saving
                   ? "Saving..."
-                  : error ?? (text === serverText ? "Saved" : "Unsaved")}
+                  : (error ?? (text === serverText ? "Saved" : "Unsaved"))}
               </label>
             </div>
           </>

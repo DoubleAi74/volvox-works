@@ -7,7 +7,7 @@ import { lighten, hexToRgba } from "@/components/dashboard/DashHeader";
 
 // Updated Skeleton to match the "Actual Post Card" design
 const PostSkeleton = ({ blurDataURL }) => (
-  <div className="p-1 rounded-[2px] bg-neutral-700/30 shadow-md h-full flex flex-col text-neutral-900/70">
+  <div className="p-1 rounded-[2px] bg-neutral-200/30 shadow-lg hover:bg-neutral-400/50  h-full flex flex-col text-neutral-900/70">
     <div
       className="w-full aspect-[4/3] rounded-sm overflow-hidden relative"
       style={{
@@ -25,9 +25,7 @@ const PostSkeleton = ({ blurDataURL }) => (
         <div className="absolute inset-0 bg-gray-200/50 animate-pulse" />
       )}
     </div>
-    <div className="px-1 pt-[4px] truncate text-xs font-bold">
-      &nbsp;
-    </div>
+    <div className="px-1 pt-[4px] truncate text-xs font-bold">&nbsp;</div>
   </div>
 );
 
@@ -69,7 +67,7 @@ export default function Loading() {
       <div className="sticky top-0 left-0 right-0 z-10 pt-[0px] px-0 bg-gray-100 shadow-md">
         <div className="">
           <div
-            className="flex items-center justify-center md:justify-start text-2xl font-bold h-[47px] pt-4 pb-3 text-white px-9"
+            className="flex items-center justify-center md:justify-start text-2xl font-bold h-[48px] pt-4 pb-3 text-white px-9"
             style={{
               backgroundColor: dashHex,
               color: lighten(dashHex, 240) || "#000000",
@@ -81,10 +79,10 @@ export default function Loading() {
       </div>
 
       <div
-        className="sticky z-10 w-full h-[4px] shadow-sm"
+        className="sticky z-10 w-full h-[3px] shadow-sm"
         style={{
-          backgroundColor: lighten(dashHex, 30) || "#ffffff",
-          top: "47px",
+          backgroundColor: lighten(dashHex, 20) || "#ffffff",
+          top: "42px",
         }}
       />
       <div

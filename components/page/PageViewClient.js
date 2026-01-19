@@ -36,7 +36,7 @@ import ActionButton from "@/components/ActionButton";
 import { useQueue } from "@/lib/useQueue";
 
 const PostSkeleton = ({ blurDataURL }) => (
-  <div className="p-1 rounded-[2px] bg-neutral-700/30 shadow-md h-full flex flex-col text-neutral-900/70">
+  <div className="p-1 rounded-[2px] bg-neutral-200/30 shadow-lg   h-full flex flex-col text-neutral-900/70">
     <div
       className="w-full aspect-[4/3] rounded-sm overflow-hidden relative"
       style={{
@@ -905,7 +905,7 @@ export default function PageViewClient({
           pointerEvents: isSynced && !debugOverlay ? "auto" : "none",
         }}
       >
-        <div className="sticky top-[-1px] left-0 right-0 z-50 pt-[0px] px-0 bg-gray-100 shadow-md">
+        <div className="sticky top-0 left-0 right-0 z-50 pt-[0px] px-0 bg-gray-100 shadow-md">
           <div className="">
             <div
               className="flex items-center justify-center md:justify-start text-2xl font-bold h-[48px] pt-4 pb-3 text-white px-9 "
@@ -930,7 +930,7 @@ export default function PageViewClient({
         <div
           className="w-full px-4 md:px-5  py-3 shadow-sm"
           style={{
-            backgroundColor: lighten(activeBackHex, -30),
+            backgroundColor: lighten(activeBackHex, -20),
           }}
         >
           <div className="max-w-7xl mx-auto">
@@ -1309,7 +1309,7 @@ export default function PageViewClient({
                 </ActionButton>
               )}
 
-              {true && (
+              {false && (
                 <ActionButton
                   onClick={() => setDebugOverlay(!debugOverlay)}
                   active={debugOverlay}
@@ -1425,7 +1425,7 @@ function LoadingOverlay({
       <div className="sticky top-0 left-0 right-0 z-10 pt-[0px] px-0 bg-gray-100 shadow-md">
         <div className="">
           <div
-            className="flex items-center justify-center md:justify-start text-2xl font-bold h-[47px] pt-4 pb-3 text-white px-9"
+            className="flex items-center justify-center md:justify-start text-2xl font-bold h-[48px] pt-4 pb-3 text-white px-9"
             style={{
               backgroundColor: activeDashHex,
               color: lighten(activeDashHex, 240) || "#000000",
@@ -1439,10 +1439,10 @@ function LoadingOverlay({
       </div>
 
       <div
-        className="sticky z-10 w-full h-[4px] shadow-sm"
+        className="sticky z-10 w-full h-[3px] shadow-sm"
         style={{
-          backgroundColor: lighten(activeDashHex, 30) || "#ffffff",
-          top: "47px",
+          backgroundColor: lighten(activeDashHex, 20) || "#ffffff",
+          top: "42px",
         }}
       />
       <div
