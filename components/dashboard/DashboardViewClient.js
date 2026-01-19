@@ -123,13 +123,13 @@ export default function DashboardViewClient({ profileUser, initialPages }) {
   const [dashHex, setDashHex] = useState(
     useLiveContext && themeState.dashHex
       ? themeState.dashHex
-      : profileUser?.dashboard?.dashHex || "#000000"
+      : profileUser?.dashboard?.dashHex || "#000000",
   );
 
   const [backHex, setBackHex] = useState(
     useLiveContext && themeState.backHex
       ? themeState.backHex
-      : profileUser?.dashboard?.backHex || "#F4F4F5"
+      : profileUser?.dashboard?.backHex || "#F4F4F5",
   );
 
   // Handle Dash Hex Changes
@@ -249,7 +249,7 @@ export default function DashboardViewClient({ profileUser, initialPages }) {
       }
 
       const validServerPages = initialPages.filter(
-        (p) => !deletedIdsRef.current.has(p.id)
+        (p) => !deletedIdsRef.current.has(p.id),
       );
 
       const optimisticPages = currentLocalPages.filter((p) => p.isOptimistic);
@@ -374,16 +374,16 @@ export default function DashboardViewClient({ profileUser, initialPages }) {
             prev.map((p) =>
               p.id === tempId
                 ? { ...p, thumbnail: thumbnailUrl, isUploadingHeic: false }
-                : p
-            )
+                : p,
+            ),
           );
 
           blurDataURL = await fetchServerBlur(thumbnailUrl);
 
           setPages((prev) =>
             prev.map((p) =>
-              p.id === tempId ? { ...p, blurDataURL: blurDataURL || "" } : p
-            )
+              p.id === tempId ? { ...p, blurDataURL: blurDataURL || "" } : p,
+            ),
           );
         }
 
@@ -408,8 +408,8 @@ export default function DashboardViewClient({ profileUser, initialPages }) {
                   isOptimistic: false,
                   isUploadingHeic: false,
                 }
-              : p
-          )
+              : p,
+          ),
         );
       },
       onRollback: () => {
@@ -457,7 +457,7 @@ export default function DashboardViewClient({ profileUser, initialPages }) {
       });
 
       return updatedList.sort(
-        (a, b) => (a.order_index || 0) - (b.order_index || 0)
+        (a, b) => (a.order_index || 0) - (b.order_index || 0),
       );
     });
 
@@ -486,8 +486,8 @@ export default function DashboardViewClient({ profileUser, initialPages }) {
                     blurDataURL: blurDataURL || "",
                     isUploadingHeic: false,
                   }
-                : p
-            )
+                : p,
+            ),
           );
         }
 
@@ -501,7 +501,7 @@ export default function DashboardViewClient({ profileUser, initialPages }) {
             thumbnail: thumbnailUrl,
             blurDataURL: blurDataURL || "",
           },
-          previousPages
+          previousPages,
         );
 
         // Final local state cleanup for this specific item
@@ -509,8 +509,8 @@ export default function DashboardViewClient({ profileUser, initialPages }) {
           prev.map((p) =>
             p.id === targetId
               ? { ...p, isOptimistic: false, isUploadingHeic: false }
-              : p
-          )
+              : p,
+          ),
         );
       },
       onRollback: () => {
@@ -533,7 +533,7 @@ export default function DashboardViewClient({ profileUser, initialPages }) {
 
     if (pageData.isOptimistic || pageData.id?.startsWith("temp-")) {
       setPages((currentPages) =>
-        currentPages.filter((p) => p.id !== pageData.id)
+        currentPages.filter((p) => p.id !== pageData.id),
       );
       return;
     }
@@ -541,7 +541,7 @@ export default function DashboardViewClient({ profileUser, initialPages }) {
     const previousPages = [...pages];
     deletedIdsRef.current.add(pageData.id);
     setPages((currentPages) =>
-      currentPages.filter((p) => p.id !== pageData.id)
+      currentPages.filter((p) => p.id !== pageData.id),
     );
 
     addToQueue({
@@ -599,7 +599,7 @@ export default function DashboardViewClient({ profileUser, initialPages }) {
         <div
           className="pt-[12px]"
           style={{
-            backgroundColor: lighten(backHex, -30),
+            backgroundColor: lighten(backHex, -20),
           }}
         >
           {/* 
