@@ -20,6 +20,7 @@ import {
   getBatchUploadUrls,
   reindexPosts,
   reconcilePostCount,
+  swapPostOrder,
 } from "@/lib/data";
 import { fetchServerBlur } from "@/lib/processImage";
 import PostCard from "@/components/page/PostCard";
@@ -819,20 +820,12 @@ export default function PageViewClient({
       );
     });
 
+    // Capture the indices at click time for the atomic swap
+    const postNewIndex = swapPost.order_index;
+    const swapPostNewIndex = post.order_index;
+
     addToQueue({
-      actionFn: async () => {
-        // Update the moved post with its new order_index
-        await updatePost(
-          post.id,
-          { order_index: swapPost.order_index },
-          previousPosts,
-        );
-        await updatePost(
-          swapPost.id,
-          { order_index: post.order_index },
-          previousPosts,
-        );
-      },
+      actionFn: () => swapPostOrder(post.id, postNewIndex, swapPost.id, swapPostNewIndex),
       onRollback: () => {
         setPosts(previousPosts);
         alert("Failed to reorder posts.");
