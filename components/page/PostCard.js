@@ -108,7 +108,7 @@ export default function PostCard({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={() => setDeletePrime(false)}
     >
-      <div className="p-1 rounded-[2px] bg-neutral-200/30 shadow-lg hover:bg-neutral-400/50 transition-all duration-100 cursor-pointer h-full flex flex-col text-neutral-900/70 hover:text-neutral-900/100">
+      <div className="p-1 rounded-[2px] bg-neutral-200/60 shadow-lg hover:bg-neutral-300/50 border-[3px]  border-neutral-800/20 transition-all duration-100 cursor-pointer h-full flex flex-col text-neutral-800/80 hover:text-neutral-900/100">
         {hasThumbnail || hasBlur || isUploadingHeic ? (
           <div
             className="w-full aspect-[4/3] rounded-sm overflow-hidden relative"

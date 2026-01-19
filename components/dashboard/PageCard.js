@@ -112,7 +112,7 @@ export default function PageCard({
   // transition-all duration-400
   const cardContent = (
     <div
-      className={`p-2 pb-[3px] rounded-[4px] bg-neutral-200/60 group-hover:bg-neutral-300/50 shadow-md h-full ${
+      className={`p-2 pb-[3px] rounded-[4px] bg-neutral-200/60 group-hover:bg-neutral-300/50 border-[3px] border-neutral-800/20 shadow-md h-full ${
         !isOptimistic ? "cursor-pointer" : "cursor-default"
       }`}
     >

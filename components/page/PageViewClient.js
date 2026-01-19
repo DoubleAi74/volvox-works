@@ -21,6 +21,8 @@ import {
   reindexPosts,
   reconcilePostCount,
   swapPostOrder,
+  warmupFirestore,
+  cleanupLastAccessField,
 } from "@/lib/data";
 import { fetchServerBlur } from "@/lib/processImage";
 import PostCard from "@/components/page/PostCard";
@@ -142,6 +144,21 @@ export default function PageViewClient({
   useEffect(() => {
     postsRef.current = posts;
   }, [posts]);
+
+  // Warm up Firestore connection on mount to avoid cold start delay (only for logged-in owners)
+  const warmupDoneRef = useRef(false);
+  useEffect(() => {
+    if (warmupDoneRef.current) return;
+    const isLoggedInOwner = currentUser && profileUser && currentUser.uid === profileUser.uid;
+    if (!isLoggedInOwner) return;
+    const firstPostId = posts?.[0]?.id;
+    if (firstPostId && !firstPostId.startsWith("temp-") && !firstPostId.startsWith("skeleton-")) {
+      warmupDoneRef.current = true;
+      warmupFirestore(firstPostId);
+      // One-time cleanup of _lastAccess field - can remove this after running once
+      cleanupLastAccessField();
+    }
+  }, [posts, currentUser, profileUser]);
 
   // UI States
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -791,8 +808,10 @@ export default function PageViewClient({
     });
   };
 
-  const handleMovePost = (postId, direction) => {
-    if (!isOwner || !page) return;
+  const isReorderingRef = useRef(false);
+
+  const handleMovePost = async (postId, direction) => {
+    if (!isOwner || !page || isReorderingRef.current) return;
 
     const currentIndex = posts.findIndex((p) => p.id === postId);
     if (currentIndex === -1) return;
@@ -804,14 +823,21 @@ export default function PageViewClient({
     const swapPost = posts[newIndex];
     const previousPosts = [...posts];
 
+    // Capture the indices for the atomic swap
+    const postNewIndex = swapPost.order_index;
+    const swapPostNewIndex = post.order_index;
+
+    // Lock reordering synchronously
+    isReorderingRef.current = true;
+
     // Optimistically swap order indices
     setPosts((currentPosts) => {
       const updatedList = currentPosts.map((p) => {
         if (p.id === post.id) {
-          return { ...p, order_index: swapPost.order_index };
+          return { ...p, order_index: postNewIndex };
         }
         if (p.id === swapPost.id) {
-          return { ...p, order_index: post.order_index };
+          return { ...p, order_index: swapPostNewIndex };
         }
         return p;
       });
@@ -820,17 +846,16 @@ export default function PageViewClient({
       );
     });
 
-    // Capture the indices at click time for the atomic swap
-    const postNewIndex = swapPost.order_index;
-    const swapPostNewIndex = post.order_index;
-
-    addToQueue({
-      actionFn: () => swapPostOrder(post.id, postNewIndex, swapPost.id, swapPostNewIndex),
-      onRollback: () => {
-        setPosts(previousPosts);
-        alert("Failed to reorder posts.");
-      },
-    });
+    // Bypass queue - swap directly to avoid reindexPosts/refresh on queue empty
+    try {
+      await swapPostOrder(post.id, postNewIndex, swapPost.id, swapPostNewIndex);
+    } catch (error) {
+      console.error("Failed to reorder posts:", error);
+      setPosts(previousPosts);
+      alert("Failed to reorder posts.");
+    } finally {
+      isReorderingRef.current = false;
+    }
   };
 
   // SIMPLIFICATION 2: Removed redundant spread [...posts]
