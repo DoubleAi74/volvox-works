@@ -108,7 +108,7 @@ export default function PostCard({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={() => setDeletePrime(false)}
     >
-      <div className="p-1 rounded-[2px] bg-neutral-900/30 shadow-md hover:bg-neutral-900/50 transition-all duration-100 cursor-pointer h-full flex flex-col">
+      <div className="p-1 rounded-[2px] bg-neutral-700/30 shadow-md hover:bg-neutral-700/50 transition-all duration-100 cursor-pointer h-full flex flex-col text-neutral-900/70 hover:text-neutral-900/100">
         {hasThumbnail || hasBlur || isUploadingHeic ? (
           <div
             className="w-full aspect-[4/3] rounded-sm overflow-hidden relative"
@@ -169,6 +169,10 @@ export default function PostCard({
             <ContentIcon className="w-8 h-8 text-neumorphic-text" />
           </div>
         )}
+
+        <div className="px-1 pt-[4px] truncate text-xs font-bold ">
+          {post.title || "\u00A0"}
+        </div>
       </div>
 
       {isOwner && editModeOn && !isOptimistic && (

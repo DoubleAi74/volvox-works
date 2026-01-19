@@ -7,7 +7,7 @@ import { lighten, hexToRgba } from "@/components/dashboard/DashHeader";
 
 // Updated Skeleton to match the "Actual Post Card" design
 const PostSkeleton = ({ blurDataURL }) => (
-  <div className="p-1 rounded-[2px] bg-neutral-900/30 shadow-md h-full flex flex-col">
+  <div className="p-1 rounded-[2px] bg-neutral-700/30 shadow-md h-full flex flex-col text-neutral-900/70">
     <div
       className="w-full aspect-[4/3] rounded-sm overflow-hidden relative"
       style={{
@@ -24,6 +24,9 @@ const PostSkeleton = ({ blurDataURL }) => (
       {!blurDataURL && (
         <div className="absolute inset-0 bg-gray-200/50 animate-pulse" />
       )}
+    </div>
+    <div className="px-1 pt-[4px] truncate text-xs font-bold">
+      &nbsp;
     </div>
   </div>
 );

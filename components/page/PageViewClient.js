@@ -36,7 +36,7 @@ import ActionButton from "@/components/ActionButton";
 import { useQueue } from "@/lib/useQueue";
 
 const PostSkeleton = ({ blurDataURL }) => (
-  <div className="p-1 rounded-[2px] bg-neutral-900/30 shadow-md h-full flex flex-col">
+  <div className="p-1 rounded-[2px] bg-neutral-700/30 shadow-md h-full flex flex-col text-neutral-900/70">
     <div
       className="w-full aspect-[4/3] rounded-sm overflow-hidden relative"
       style={{
@@ -51,6 +51,7 @@ const PostSkeleton = ({ blurDataURL }) => (
         <div className="absolute inset-0 bg-neutral-200/30 animate-pulse" />
       )}
     </div>
+    <div className="px-1 pt-[4px] truncate text-xs font-bold">&nbsp;</div>
   </div>
 );
 
@@ -303,7 +304,7 @@ export default function PageViewClient({
 
       // Filter server data against our local deletion tracking
       const validServerPosts = initialPosts.filter(
-        (p) => !deletedIdsRef.current.has(p.id)
+        (p) => !deletedIdsRef.current.has(p.id),
       );
 
       // Keep any items that are currently in the middle of a background sync (optimistic)
@@ -403,7 +404,7 @@ export default function PageViewClient({
         const thumbnailUrl = await uploadFile(
           postData.pendingFile,
           securePath,
-          10 * 1024 * 1024
+          10 * 1024 * 1024,
         );
         let blurDataURL = postData.blurDataURL;
 
@@ -412,14 +413,14 @@ export default function PageViewClient({
             prev.map((p) =>
               p.id === tempId
                 ? { ...p, thumbnail: thumbnailUrl, isUploadingHeic: false }
-                : p
-            )
+                : p,
+            ),
           );
           blurDataURL = await fetchServerBlur(thumbnailUrl);
           setPosts((prev) =>
             prev.map((p) =>
-              p.id === tempId ? { ...p, blurDataURL: blurDataURL || "" } : p
-            )
+              p.id === tempId ? { ...p, blurDataURL: blurDataURL || "" } : p,
+            ),
           );
         }
 
@@ -433,7 +434,7 @@ export default function PageViewClient({
           finalContent = await uploadFile(
             postData.contentFile,
             contentPath,
-            50 * 1024 * 1024
+            50 * 1024 * 1024,
           );
         } else if (postData.content_type === "url" && postData.content) {
           finalContent = postData.content; // URL string
@@ -465,8 +466,8 @@ export default function PageViewClient({
                   isOptimistic: false,
                   isUploadingHeic: false,
                 }
-              : p
-          )
+              : p,
+          ),
         );
       },
       onRollback: () => {
@@ -538,7 +539,7 @@ export default function PageViewClient({
       console.error("Failed to get batch upload URLs:", error);
       // Rollback all optimistic posts on failure
       setPosts((prev) =>
-        prev.filter((p) => !preparedPosts.some((pp) => pp.tempId === p.id))
+        prev.filter((p) => !preparedPosts.some((pp) => pp.tempId === p.id)),
       );
       return;
     }
@@ -571,14 +572,14 @@ export default function PageViewClient({
               prev.map((p) =>
                 p.id === tempId
                   ? { ...p, thumbnail: thumbnailUrl, isUploadingHeic: false }
-                  : p
-              )
+                  : p,
+              ),
             );
             blurDataURL = await fetchServerBlur(thumbnailUrl);
             setPosts((prev) =>
               prev.map((p) =>
-                p.id === tempId ? { ...p, blurDataURL: blurDataURL || "" } : p
-              )
+                p.id === tempId ? { ...p, blurDataURL: blurDataURL || "" } : p,
+              ),
             );
           }
 
@@ -603,8 +604,8 @@ export default function PageViewClient({
                     isOptimistic: false,
                     isUploadingHeic: false,
                   }
-                : p
-            )
+                : p,
+            ),
           );
         },
         onRollback: () => {
@@ -672,7 +673,7 @@ export default function PageViewClient({
       });
 
       return updatedList.sort(
-        (a, b) => (a.order_index || 0) - (b.order_index || 0)
+        (a, b) => (a.order_index || 0) - (b.order_index || 0),
       );
     });
 
@@ -696,8 +697,8 @@ export default function PageViewClient({
                     blurDataURL: blurDataURL || "",
                     isUploadingHeic: false,
                   }
-                : p
-            )
+                : p,
+            ),
           );
         }
 
@@ -710,7 +711,7 @@ export default function PageViewClient({
           finalContent = await uploadFile(
             postData.contentFile,
             contentPath,
-            50 * 1024 * 1024
+            50 * 1024 * 1024,
           );
         } else if (postData.content_type === "url") {
           // Use urlInput if provided (when switching from non-URL type), otherwise use existing content
@@ -719,7 +720,14 @@ export default function PageViewClient({
           finalContent = "";
         }
 
-        const { pendingFile, needsServerBlur, contentFile, urlInput, contentFileName, ...cleanPostData } = postData;
+        const {
+          pendingFile,
+          needsServerBlur,
+          contentFile,
+          urlInput,
+          contentFileName,
+          ...cleanPostData
+        } = postData;
         await updatePost(
           targetId,
           {
@@ -728,7 +736,7 @@ export default function PageViewClient({
             blurDataURL: blurDataURL || "",
             content: finalContent,
           },
-          previousPosts
+          previousPosts,
         );
 
         // Clear optimistic flag and update content after successful update
@@ -741,10 +749,10 @@ export default function PageViewClient({
                   isOptimistic: false,
                   isUploadingHeic: false,
                 }
-              : p
+              : p,
           );
           return updated.sort(
-            (a, b) => (a.order_index || 0) - (b.order_index || 0)
+            (a, b) => (a.order_index || 0) - (b.order_index || 0),
           );
         });
       },
@@ -759,7 +767,7 @@ export default function PageViewClient({
     if (!isOwner || !page) return;
     if (postData.isOptimistic || postData.id?.startsWith("temp-")) {
       setPosts((currentPosts) =>
-        currentPosts.filter((p) => p.id !== postData.id)
+        currentPosts.filter((p) => p.id !== postData.id),
       );
       return;
     }
@@ -767,7 +775,7 @@ export default function PageViewClient({
     const previousPosts = [...posts];
     deletedIdsRef.current.add(postData.id);
     setPosts((currentPosts) =>
-      currentPosts.filter((p) => p.id !== postData.id)
+      currentPosts.filter((p) => p.id !== postData.id),
     );
 
     addToQueue({
@@ -807,7 +815,7 @@ export default function PageViewClient({
         return p;
       });
       return updatedList.sort(
-        (a, b) => (a.order_index || 0) - (b.order_index || 0)
+        (a, b) => (a.order_index || 0) - (b.order_index || 0),
       );
     });
 
@@ -817,12 +825,12 @@ export default function PageViewClient({
         await updatePost(
           post.id,
           { order_index: swapPost.order_index },
-          previousPosts
+          previousPosts,
         );
         await updatePost(
           swapPost.id,
           { order_index: post.order_index },
-          previousPosts
+          previousPosts,
         );
       },
       onRollback: () => {
@@ -835,7 +843,7 @@ export default function PageViewClient({
   // SIMPLIFICATION 2: Removed redundant spread [...posts]
   // `posts` is already an array in state; copying it is unnecessary for read-only ops.
   const currentIndex = posts.findIndex(
-    (p) => p.id === selectedPostForModal?.id
+    (p) => p.id === selectedPostForModal?.id,
   );
 
   const handleNextPost = () => {
@@ -1301,7 +1309,7 @@ export default function PageViewClient({
                 </ActionButton>
               )}
 
-              {false && (
+              {true && (
                 <ActionButton
                   onClick={() => setDebugOverlay(!debugOverlay)}
                   active={debugOverlay}
