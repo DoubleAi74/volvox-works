@@ -8,7 +8,7 @@ import { lighten, hexToRgba } from "@/components/dashboard/DashHeader";
 
 // 1. Updated Skeleton to match LoadingOverlay exactly
 const PageSkeleton = ({ blurDataURL }) => (
-  <div className="p-2 pb-[3px] rounded-[4px] bg-neutral-200/60 shadow-md h-full mb-[0px]">
+  <div className="p-2 pb-[3px] rounded-[4px] border-[3px] border-neutral-800/20 bg-neutral-200/60 shadow-md h-full mb-[0px]">
     <div
       className="w-full aspect-[4/3] mb-1 rounded-sm overflow-hidden relative"
       style={{
@@ -24,8 +24,8 @@ const PageSkeleton = ({ blurDataURL }) => (
       )}
     </div>
     <div className="flex pl-1 pr-1 items-center justify-between gap-1 mt-0 h-8 w-full overflow-hidden">
-      <div className="h-4 w-3/5 bg-gray-300/50 rounded animate-pulse" />
-      <div className="h-3 w-1/4 bg-gray-300/50 rounded animate-pulse" />
+      <div className="h-4 w-3/5 bg-neutral-800/20 rounded-sm " />
+      <div className="h-3 w-1/4 bg-neutral-800/20 rounded-sm " />
     </div>
   </div>
 );
@@ -87,7 +87,7 @@ export default function Loading() {
         />
       </div>
 
-      <div className="h-[65px] sm:h-[100px]"></div>
+      <div className="h-[65px] sm:h-[87px]"></div>
       {hasOptimisticData && (
         <div className="p-[8px] md:p-6">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-[6px] md:gap-5">

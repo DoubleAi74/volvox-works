@@ -6,7 +6,6 @@ import React, {
   useEffect,
   useCallback,
   useRef,
-  useTransition,
   useLayoutEffect,
 } from "react";
 import DashHeader from "@/components/dashboard/DashHeader";
@@ -33,7 +32,7 @@ import {
 import { fetchServerBlur } from "@/lib/processImage";
 
 const PageSkeleton = () => (
-  <div className="w-full h-48 bg-gray-200/50 rounded-xl animate-pulse shadow-sm" />
+  <div className="w-full h-48 bg-gray-200/50 border-[3px] border-neutral-800/20 rounded-xl animate-pulse shadow-sm" />
 );
 
 export default function DashboardViewClient({ profileUser, initialPages }) {
@@ -42,7 +41,6 @@ export default function DashboardViewClient({ profileUser, initialPages }) {
   const { updateTheme, themeState } = useTheme();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const [isPending, startTransition] = useTransition();
 
   const [pages, setPages] = useState(() => {
     if (initialPages && initialPages.length > 0) {
@@ -68,36 +66,18 @@ export default function DashboardViewClient({ profileUser, initialPages }) {
   const optimisticBlurs = themeState?.optimisticDashboardData?.pageBlurs || [];
   const overlayBlurs = serverBlurs.length > 0 ? serverBlurs : optimisticBlurs;
 
-  const refreshWithScrollRestore = useCallback(() => {
-    // 1. Capture current position
-    scrollRestorePosRef.current = window.scrollY;
-
-    // 2. Set restoration to manual
-    if ("scrollRestoration" in window.history) {
-      window.history.scrollRestoration = "manual";
-    }
-
-    // 3. Trigger the refresh
-    router.refresh();
-  }, [router]);
-
   const handleQueueEmpty = useCallback(async () => {
-    console.log("Queue is empty, reindexing and refreshing...");
+    console.log("Queue is empty, reindexing...");
 
     if (currentUser?.uid) {
-      // 1. Perform your maintenance tasks
+      // Perform maintenance tasks
       await reindexPages(currentUser.uid);
       await reconcilePageCount(currentUser.uid);
 
-      // 2. Trigger the refresh inside a transition.
-      // This tells Next.js to fetch the new 'initialPages' from the server.
-      // Because we use refreshWithScrollRestore, the scroll-lock logic
-      // will prevent the jump that the useQueue author was afraid of.
-      startTransition(() => {
-        refreshWithScrollRestore();
-      });
+      // No router.refresh() needed - optimistic updates already show correct UI
+      // The data is saved to DB, and next navigation/refresh will load fresh data
     }
-  }, [currentUser?.uid, refreshWithScrollRestore]); // Add
+  }, [currentUser?.uid]); // Add
 
   const { addToQueue, isSyncing } = useQueue(handleQueueEmpty);
 
@@ -142,14 +122,13 @@ export default function DashboardViewClient({ profileUser, initialPages }) {
     const handler = setTimeout(async () => {
       if (profileUser?.uid) {
         await updateUserColours(profileUser.uid, "dashboard.dashHex", dashHex);
-        startTransition(() => {
-          refreshWithScrollRestore();
-        });
+        // No router.refresh() - colours are applied locally via state and saved to DB
+        // Refreshing would cause scroll position issues with no benefit
       }
     }, 1000);
 
     return () => clearTimeout(handler);
-  }, [dashHex, backHex, profileUser, refreshWithScrollRestore, updateTheme]);
+  }, [dashHex, backHex, profileUser, updateTheme]);
 
   // Handle Back Hex Changes
   useEffect(() => {
@@ -161,19 +140,17 @@ export default function DashboardViewClient({ profileUser, initialPages }) {
     const handler = setTimeout(async () => {
       if (profileUser?.uid) {
         await updateUserColours(profileUser.uid, "dashboard.backHex", backHex);
-        startTransition(() => {
-          refreshWithScrollRestore();
-        });
+        // No router.refresh() - colours are applied locally via state and saved to DB
+        // Refreshing would cause scroll position issues with no benefit
       }
     }, 1000);
 
     return () => clearTimeout(handler);
-  }, [backHex, dashHex, profileUser, refreshWithScrollRestore, updateTheme]);
+  }, [backHex, dashHex, profileUser, updateTheme]);
 
   const secondHeaderRef = useRef(null);
   const hasScrolledRef = useRef(false);
   const lastUserIdRef = useRef(null);
-  const scrollRestorePosRef = useRef(null);
 
   useLayoutEffect(() => {
     if (typeof window === "undefined") return;
@@ -203,7 +180,7 @@ export default function DashboardViewClient({ profileUser, initialPages }) {
       if (secondHeaderRef.current) {
         // Use scrollTo with explicit offset calculation for better mobile support
         const rect = secondHeaderRef.current.getBoundingClientRect();
-        const scrollMargin = window.innerWidth < 640 ? 45 : 80; // matches scroll-mt-[45px] sm:scroll-mt-[80px]
+        const scrollMargin = window.innerWidth < 640 ? 45 : 67;
         const targetY = window.scrollY + rect.top - scrollMargin;
         window.scrollTo({ top: targetY, behavior: "instant" });
       }
@@ -275,24 +252,6 @@ export default function DashboardViewClient({ profileUser, initialPages }) {
 
       return merged.sort((a, b) => (a.order_index || 0) - (b.order_index || 0));
     });
-
-    // 2. RESTORE SCROLL POSITION
-    // This logic only runs if refreshWithScrollRestore was called
-    if (scrollRestorePosRef.current !== null) {
-      const savedY = scrollRestorePosRef.current;
-      scrollRestorePosRef.current = null; // Reset so it only happens once
-
-      // Use double requestAnimationFrame to wait for the DOM
-      // to render the newly 'setPages' data before scrolling.
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          window.scrollTo({
-            top: savedY,
-            behavior: "instant",
-          });
-        });
-      });
-    }
   }, [initialPages]);
 
   const handleLogout = async () => {
@@ -737,7 +696,7 @@ export default function DashboardViewClient({ profileUser, initialPages }) {
 
         <div
           ref={secondHeaderRef}
-          className="sticky top-[74px] sm:top-[94px] left-0 right-0 z-10 pt-0 px-0 scroll-mt-[45px] sm:scroll-mt-[80px]"
+          className="sticky top-[74px] sm:top-[94px] left-0 right-0 z-10 pt-0 px-0 scroll-mt-[45px] sm:scroll-mt-[67px]"
         >
           <DashHeader
             title={""}
@@ -920,7 +879,7 @@ function LoadingOverlay({
   previewBlurs,
 }) {
   const PageSkeleton = ({ blurDataURL }) => (
-    <div className="p-2 pb-[3px] rounded-[4px] bg-neutral-200/60 shadow-md h-full mb-[0px]">
+    <div className="p-2 pb-[3px] rounded-[4px] bg-neutral-200/60 border-[3px] border-neutral-800/20 shadow-md h-full mb-[0px]">
       <div
         className="w-full aspect-[4/3] mb-1 rounded-sm overflow-hidden relative"
         style={{
@@ -936,8 +895,8 @@ function LoadingOverlay({
         )}
       </div>
       <div className="flex pl-1 pr-1 items-center justify-between gap-1 mt-0 h-8 w-full overflow-hidden">
-        <div className="h-4 w-3/5 bg-gray-300/50 rounded animate-pulse" />
-        <div className="h-3 w-1/4 bg-gray-300/50 rounded animate-pulse" />
+        <div className="h-4 w-3/5 bg-neutral-800/20 rounded-sm " />
+        <div className="h-3 w-1/4 bg-neutral-800/20 rounded-sm " />
       </div>
     </div>
   );
@@ -986,7 +945,7 @@ function LoadingOverlay({
         />
       </div>
 
-      <div className="h-[65px] sm:h-[100px]"></div>
+      <div className="h-[65px] sm:h-[87px]"></div>
 
       <div className="p-[8px] md:p-6">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-[6px] md:gap-5">
