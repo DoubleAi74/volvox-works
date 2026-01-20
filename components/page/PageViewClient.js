@@ -1336,7 +1336,7 @@ export default function PageViewClient({
                 </ActionButton>
               )}
 
-              {true && (
+              {false && (
                 <ActionButton
                   onClick={() => setDebugOverlay(!debugOverlay)}
                   active={debugOverlay}
