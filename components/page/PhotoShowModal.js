@@ -308,7 +308,7 @@ export default function PhotoShowModal({
                     </a>
                     <button
                       onClick={() => handleDownload(post.content)}
-                      className="flex items-center focus:outline-none space-x-2 px-2 py-1 text-sm text-neutral-200 hover:text-neutral-100 bg-cyan-900/80 mr-[14px] hover:bg-cyan-800 rounded-[3px] border border-cyan-900"
+                      className="sm:flex hidden  items-center focus:outline-none space-x-2 px-2 py-1 text-sm text-neutral-200 hover:text-neutral-100 bg-cyan-900/80 mr-[14px] hover:bg-cyan-800 rounded-[3px] border border-cyan-900"
                     >
                       <p>Download</p>
                       <Download size={15} />
