@@ -24,8 +24,8 @@ const PageSkeleton = ({ blurDataURL }) => (
       )}
     </div>
     <div className="flex pl-1 pr-1 items-center justify-between gap-1 mt-0 h-8 w-full overflow-hidden">
-      <div className="h-4 w-3/5 bg-neutral-800/20 rounded-sm " />
-      <div className="h-3 w-1/4 bg-neutral-800/20 rounded-sm " />
+      <div className="h-4 w-3/5 bg-neutral-800/10 rounded-sm " />
+      <div className="h-3 w-1/4 bg-neutral-800/10 rounded-sm " />
     </div>
   </div>
 );

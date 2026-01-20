@@ -8,6 +8,7 @@ import React, {
   useRef,
   useLayoutEffect,
 } from "react";
+import { flushSync } from "react-dom";
 import DashHeader from "@/components/dashboard/DashHeader";
 import DashboardInfoEditor from "@/components/dashboard/DashboardInfoEditor";
 import { useAuth } from "@/context/AuthContext";
@@ -151,6 +152,7 @@ export default function DashboardViewClient({ profileUser, initialPages }) {
   const secondHeaderRef = useRef(null);
   const hasScrolledRef = useRef(false);
   const lastUserIdRef = useRef(null);
+  const pagesGridRef = useRef(null);
 
   useLayoutEffect(() => {
     if (typeof window === "undefined") return;
@@ -265,7 +267,23 @@ export default function DashboardViewClient({ profileUser, initialPages }) {
 
   const toggleEditMode = () => {
     const shouldBeEditing = !editOn;
-    setEditOn(shouldBeEditing);
+
+    // Capture grid position before toggle for scroll stabilization
+    const gridTopBefore = pagesGridRef.current?.getBoundingClientRect().top;
+
+    // flushSync forces synchronous state + DOM update before browser paints
+    flushSync(() => {
+      setEditOn(shouldBeEditing);
+    });
+
+    // Measure and scroll immediately (still before paint)
+    if (pagesGridRef.current && gridTopBefore !== undefined) {
+      const gridTopAfter = pagesGridRef.current.getBoundingClientRect().top;
+      const diff = gridTopAfter - gridTopBefore;
+      if (Math.abs(diff) > 1) {
+        window.scrollBy({ top: diff, behavior: "instant" });
+      }
+    }
 
     const currentParams = new URLSearchParams(searchParams.toString());
     if (shouldBeEditing) {
@@ -613,7 +631,7 @@ export default function DashboardViewClient({ profileUser, initialPages }) {
                 </ActionButton>
               ) : isOwner ? (
                 <ActionButton
-                  onClick={() => setEditOn(!editOn)}
+                  onClick={toggleEditMode}
                   active={editOn}
                   title="Toggle edit mode"
                   className="w-[54px]"
@@ -727,7 +745,10 @@ export default function DashboardViewClient({ profileUser, initialPages }) {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-[6px] md:gap-5">
+            <div
+              ref={pagesGridRef}
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-[6px] md:gap-5"
+            >
               {pages
                 .filter((page) => {
                   if (page.isPrivate && !isOwner) {
@@ -895,8 +916,8 @@ function LoadingOverlay({
         )}
       </div>
       <div className="flex pl-1 pr-1 items-center justify-between gap-1 mt-0 h-8 w-full overflow-hidden">
-        <div className="h-4 w-3/5 bg-neutral-800/20 rounded-sm " />
-        <div className="h-3 w-1/4 bg-neutral-800/20 rounded-sm " />
+        <div className="h-4 w-3/5 bg-neutral-800/10 rounded-sm " />
+        <div className="h-3 w-1/4 bg-neutral-800/10 rounded-sm " />
       </div>
     </div>
   );

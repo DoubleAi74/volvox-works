@@ -58,7 +58,7 @@ const PostSkeleton = ({ blurDataURL }) => (
     {/* <div className="px-1 pt-[4px] truncate text-xs font-bold">&nbsp;</div> */}
 
     <div className="flex pl-1 pr-1 items-center justify-between gap-1 mt-2 mb-[3px] w-full overflow-hidden">
-      <div className="h-[9px] w-3/5 bg-neutral-800/20 rounded-[2px] " />
+      <div className="h-[9px] w-3/5 bg-neutral-800/10 rounded-[2px] " />
     </div>
   </div>
 );
@@ -288,50 +288,6 @@ export default function PageViewClient({
       });
     }
   };
-
-  // useEffect(() => {
-  //   if (!initialPosts || initialPosts.length === 0) return;
-
-  //   const serverIds = new Set(initialPosts.map((p) => p.id));
-  //   deletedIdsRef.current.forEach((id) => {
-  //     if (!serverIds.has(id)) {
-  //       deletedIdsRef.current.delete(id);
-  //     }
-  //   });
-
-  //   setPosts((currentLocalPosts) => {
-  //     if (currentLocalPosts.length > 0 && currentLocalPosts[0]?.isSkeleton) {
-  //       return initialPosts.filter((p) => !deletedIdsRef.current.has(p.id));
-  //     }
-
-  //     const validServerPosts = initialPosts.filter(
-  //       (p) => !deletedIdsRef.current.has(p.id)
-  //     );
-  //     const optimisticPosts = currentLocalPosts.filter((p) => p.isOptimistic);
-  //     const serverPostsByClientId = new Map();
-  //     validServerPosts.forEach((p) => {
-  //       if (p.clientId) serverPostsByClientId.set(p.clientId, p);
-  //     });
-
-  //     const merged = validServerPosts.map((serverPost) => {
-  //       const matchingOptimistic = optimisticPosts.find(
-  //         (opt) => opt.clientId && opt.clientId === serverPost.clientId
-  //       );
-  //       return matchingOptimistic ? serverPost : serverPost;
-  //     });
-
-  //     optimisticPosts.forEach((optPost) => {
-  //       const hasServerVersion =
-  //         optPost.clientId && serverPostsByClientId.has(optPost.clientId);
-  //       const existsById = merged.some((p) => p.id === optPost.id);
-  //       if (!hasServerVersion && !existsById) {
-  //         merged.push(optPost);
-  //       }
-  //     });
-
-  //     return merged.sort((a, b) => (a.order_index || 0) - (b.order_index || 0));
-  //   });
-  // }, [initialPosts]);
 
   useEffect(() => {
     // 1. Guard against empty initial load

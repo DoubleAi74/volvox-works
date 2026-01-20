@@ -25,7 +25,7 @@ const PostSkeleton = ({ blurDataURL }) => (
     {/* <div className="px-1 pt-[4px] truncate text-xs font-bold">&nbsp;</div> */}
 
     <div className="flex pl-1 pr-1 items-center justify-between gap-1 mt-2 mb-[3px] w-full overflow-hidden">
-      <div className="h-[9px] w-3/5 bg-neutral-800/20 rounded-[2px] " />
+      <div className="h-[9px] w-3/5 bg-neutral-800/10 rounded-[2px] " />
     </div>
   </div>
 );
