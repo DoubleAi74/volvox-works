@@ -141,7 +141,7 @@ export default function DashboardInfoEditor({
             <textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder={"Text input takes html..."}
+              placeholder={"Add text or HTML"}
               readOnly={!isEditing}
               className={`
                 ${structuralStyles}

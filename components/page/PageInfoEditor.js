@@ -130,7 +130,7 @@ export default function PageInfoEditor({
             <textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="Enter page info..."
+              placeholder="Add text or HTML"
               readOnly={!isEditing}
               className={`
                 ${structuralStyles}
