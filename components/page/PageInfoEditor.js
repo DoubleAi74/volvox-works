@@ -24,10 +24,7 @@ export default function PageInfoEditor({
   // STYLES
   // ------------------------------------------------------------------
   const structuralStyles =
-    "col-start-1 row-start-1 w-full p-3 py-[7px] text-base leading-relaxed font-sans rounded-sm break-words whitespace-pre-wrap outline-none resize-none overflow-hidden";
-
-  const transitionStyles =
-    "transition-[background-color,border-color,box-shadow] duration-100 ease-in-out";
+    "col-start-1 row-start-1 w-full p-3 py-[7px] text-base leading-relaxed font-sans rounded-sm break-words  outline-none resize-none overflow-hidden";
 
   useEffect(() => {
     let unsub;
@@ -86,15 +83,9 @@ export default function PageInfoEditor({
   }
 
   const isEditing = canEdit && editOn;
-  const currentText = text || serverText || "";
-
-  // Always add trailing space to preserve empty lines
-  const displayContent = currentText ? currentText + "\u00A0" : "\u00A0";
-
   const showSkeleton = loading && !text && !initialData;
-
-  // Check if content is empty or just whitespace/empty HTML
-  const isEmpty = !currentText || currentText.trim() === "";
+  const baseStyles =
+    "col-start-1 row-start-1 w-full p-0 py-[0px] text-base leading-relaxed font-sans rounded-sm break-words outline-none resize-none overflow-hidden ";
 
   return (
     <section className="w-full block">
@@ -111,27 +102,28 @@ export default function PageInfoEditor({
           </div>
         ) : (
           <>
-            {/* Ghost div for sizing (only needed for textarea mode) */}
+            {/* Ghost div for sizing */}
+
             <div
-              className={`${structuralStyles} ${transitionStyles} ${
-                isEditing
-                  ? "bg-neutral-100/70 border-neutral-400/70 text-transparent select-none"
-                  : "bg-neutral-100/50 border-transparent text-neutral-900 shadow-sm"
-              }`}
+              className={`
+                ${baseStyles}
+                ${
+                  isEditing
+                    ? "whitespace-pre-wrap bg-neutral-100/70 border-neutral-300 text-transparent select-none"
+                    : "whitespace-normal bg-transparent border-transparent text-neutral-900"
+                }
+              `}
               aria-hidden={isEditing}
             >
               {isEditing ? (
-                displayContent
-              ) : isEmpty ? (
-                <>{"\u00A0"}</>
+                // Raw text for sizing
+                <>{text + "\u00A0"}</>
               ) : (
-                <>
-                  <div
-                    className="rich-text-content"
-                    dangerouslySetInnerHTML={{ __html: currentText }}
-                  />
-                  {/* {"\u00A0"} */}
-                </>
+                // Rendered HTML
+                <div
+                  className="page-content"
+                  dangerouslySetInnerHTML={{ __html: text || "\u00A0" }}
+                />
               )}
             </div>
 

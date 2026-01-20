@@ -95,6 +95,8 @@ export default function DashboardInfoEditor({
   const displayContent = currentText ? currentText + "\u00A0" : "\u00A0";
 
   const showSkeleton = loading && !text && !initialData;
+  const baseStyles =
+    "col-start-1 row-start-1 w-full p-0 py-[0px] text-base leading-relaxed font-sans rounded-sm break-words outline-none resize-none overflow-hidden ";
 
   return (
     <section className="w-full block">
@@ -112,21 +114,51 @@ export default function DashboardInfoEditor({
         ) : (
           <>
             {/* Ghost div for sizing */}
+
             <div
-              className={`${structuralStyles} ${transitionStyles} ${
-                isEditing
-                  ? "bg-neutral-100/70 border-neutral-400/70 text-transparent select-none"
-                  : "bg-neutral-100/50 border-transparent text-neutral-900 shadow-sm"
-              }`}
+              className={`
+                ${baseStyles}
+                ${
+                  isEditing
+                    ? "whitespace-pre-wrap bg-neutral-100/70 border-neutral-300 text-transparent select-none"
+                    : "whitespace-normal bg-transparent border-transparent text-neutral-900"
+                }
+              `}
               aria-hidden={isEditing}
             >
-              {displayContent}
+              {isEditing ? (
+                // Raw text for sizing
+                <>{text + "\u00A0"}</>
+              ) : (
+                // Rendered HTML
+                <div
+                  className="dashboard-content"
+                  dangerouslySetInnerHTML={{ __html: text || "\u00A0" }}
+                />
+              )}
             </div>
 
             <textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="Enter dashboard info..."
+              placeholder={`<!--  -->
+<div
+  style="
+    padding: 10px 10px;
+    background-color: rgba(230, 230, 230, 0.8);
+    color: rgba(20, 20, 20, 1);
+    border-radius: 4px;
+  "
+>
+  <div style="font-size: 20px; font-weight: 600; line-height: 1.5">
+    <!--ADD HEADER HERE-->
+  </div>
+
+  <div class="">
+    <!--ADD MAIN TEXT HERE-->
+  </div>
+</div>
+`}
               readOnly={!isEditing}
               className={`
                 ${structuralStyles}

@@ -16,9 +16,9 @@ export function lighten(hex, amount = 30) {
   let r = parseInt(hex.substring(0, 2), 16);
   let g = parseInt(hex.substring(2, 4), 16);
   let b = parseInt(hex.substring(4, 6), 16);
-  r = Math.min(255, r + amount);
-  g = Math.min(255, g + amount);
-  b = Math.min(255, b + amount);
+  r = Math.max(0, Math.min(255, r + amount));
+  g = Math.max(0, Math.min(255, g + amount));
+  b = Math.max(0, Math.min(255, b + amount));
   const toHex = (v) => v.toString(16).padStart(2, "0");
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
@@ -45,7 +45,7 @@ function DashHeaderInner(
     setBackHex,
     isSyncing = false,
   },
-  ref
+  ref,
 ) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -53,16 +53,16 @@ function DashHeaderInner(
 
   // 1. OPTIMISTIC STATE: Initialize from URL, but allow local overrides
   const [titleEditOn, setTitleEditOn] = useState(
-    searchParams.get("edit") === "title"
+    searchParams.get("edit") === "title",
   );
 
   const [savedTitle, setSavedTitle] = useState(
-    profileUser?.usernameTitle ?? ""
+    profileUser?.usernameTitle ?? "",
   );
   const [savedTag, setSavedTag] = useState(profileUser?.usernameTag ?? "");
 
   const [tempTitleText, setTempTitleText] = useState(
-    profileUser && !heightShort ? `${profileUser.usernameTitle}` : ""
+    profileUser && !heightShort ? `${profileUser.usernameTitle}` : "",
   );
 
   const [suggestedTag, setSuggestedTag] = useState("");
@@ -128,7 +128,7 @@ function DashHeaderInner(
           const previousTag = profileUser?.usernameTag || "";
           const availableTag = await findAvailableUsernameTag(
             baseRaw,
-            previousTag
+            previousTag,
           );
           setSuggestedTag(availableTag);
         } catch (err) {
@@ -186,7 +186,7 @@ function DashHeaderInner(
                 className={`text-2xl sm:text-4xl font-extrabold tracking-tight drop-shadow pr-4 pl-6  sm:pl-8 break-words leading-tight ${
                   heightShort ? "" : "pt-5 pb-1"
                 }`}
-                style={{ color: lighten(dashHex, 230) }}
+                style={{ color: lighten(dashHex, 245) }}
               >
                 {tempTitleText}
               </h1>
@@ -285,8 +285,8 @@ function DashHeaderInner(
                 {isSaving
                   ? "..."
                   : savedTitle === tempTitleText
-                  ? "Saved"
-                  : "Save"}
+                    ? "Saved"
+                    : "Save"}
               </button>
             </div>
           </div>

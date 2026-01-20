@@ -558,7 +558,7 @@ export default function DashboardViewClient({ profileUser, initialPages }) {
         <div
           className="pt-[12px]"
           style={{
-            backgroundColor: lighten(backHex, -20),
+            backgroundColor: lighten(backHex, -30),
           }}
         >
           {/* 
