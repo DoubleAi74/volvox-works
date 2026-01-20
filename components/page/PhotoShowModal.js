@@ -287,9 +287,18 @@ export default function PhotoShowModal({
                     href={post.content}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center focus:outline-none space-x-2 px-2 py-1 text-sm text-neutral-200 hover:text-neutral-100 bg-emerald-800/70 hover:bg-emerald-800 rounded-[3px]  border border-emerald-800"
+                    className="
+    flex items-center justify-center sm:justify-end
+    px-2 py-1
+    sm:space-x-2
+    text-sm text-neutral-200 hover:text-neutral-100
+    bg-emerald-800/70 hover:bg-emerald-800
+    rounded-[3px]
+    border border-emerald-800
+    focus:outline-none
+  "
                   >
-                    <p>Open Link</p>
+                    <p className="hidden sm:block">Open Link</p>
                     <ExternalLink size={15} />
                   </a>
                 )}
