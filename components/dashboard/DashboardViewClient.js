@@ -170,6 +170,12 @@ export default function DashboardViewClient({ profileUser, initialPages }) {
       return;
     }
 
+    // Wait for auth to resolve before positioning - otherwise the layout will shift
+    // when auth buttons appear/change
+    if (authLoading) {
+      return;
+    }
+
     if ("scrollRestoration" in window.history) {
       window.history.scrollRestoration = "manual";
     }
@@ -203,7 +209,7 @@ export default function DashboardViewClient({ profileUser, initialPages }) {
     };
 
     waitForFontsAndPaint();
-  }, [profileUser?.uid]);
+  }, [profileUser?.uid, authLoading]);
 
   useEffect(() => {
     setEditOn(searchParams.has("edit"));

@@ -166,7 +166,7 @@ function DashHeaderInner(
   const combinedClassName = `backdrop-blur-md  ${className || ""}`;
 
   return (
-    <>
+    <div className="relative">
       <div
         ref={ref}
         role="banner"
@@ -255,10 +255,10 @@ function DashHeaderInner(
         </span>
       )}
 
-      {/* Render based on optimistic state (titleEditOn) */}
+      {/* Render based on optimistic state (titleEditOn) - absolute positioned to avoid layout shift */}
       {titleEditOn && editTitleOn && (
-        <div className="px-3 w-full ">
-          <div className="w-full sm:w-[500px] p-2 pr-4 bg-black/40 backdrop-blur-md rounded-b-md text-white min-h-[80px]">
+        <div className="absolute top-full left-0 px-3 w-full z-50">
+          <div className="w-full sm:w-[500px] p-2 pr-4 bg-black/40 backdrop-blur-md rounded-b-md text-white min-h-[80px] relative">
             <input
               type="text"
               className="focus:outline-none text-black w-full  sm:w-4/5 p-1"
@@ -292,7 +292,7 @@ function DashHeaderInner(
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
 

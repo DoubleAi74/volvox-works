@@ -141,24 +141,7 @@ export default function DashboardInfoEditor({
             <textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder={`<!--  -->
-<div
-  style="
-    padding: 10px 10px;
-    background-color: rgba(230, 230, 230, 0.8);
-    color: rgba(20, 20, 20, 1);
-    border-radius: 4px;
-  "
->
-  <div style="font-size: 20px; font-weight: 600; line-height: 1.5">
-    <!--ADD HEADER HERE-->
-  </div>
-
-  <div class="">
-    <!--ADD MAIN TEXT HERE-->
-  </div>
-</div>
-`}
+              placeholder={"Text input takes html..."}
               readOnly={!isEditing}
               className={`
                 ${structuralStyles}
