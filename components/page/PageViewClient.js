@@ -7,6 +7,7 @@ import React, {
   useEffect,
   useLayoutEffect,
 } from "react";
+import { flushSync } from "react-dom";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
@@ -177,10 +178,34 @@ export default function PageViewClient({
   const [selectedPostForModal, setSelectedPostForModal] = useState(null);
   const deletedIdsRef = useRef(new Set());
   const topInfoRef = useRef(null);
+  const postsGridRef = useRef(null);
 
   const isOwner =
     currentUser && profileUser && currentUser.uid === profileUser.uid;
   const isPublic = page?.isPublic || false;
+
+  // Toggle edit mode while keeping the posts grid visually stable
+  const handleToggleEditMode = useCallback(() => {
+    if (!postsGridRef.current) {
+      setEditOn((prev) => !prev);
+      return;
+    }
+
+    // Capture grid position before toggle
+    const gridTopBefore = postsGridRef.current.getBoundingClientRect().top;
+
+    // flushSync forces synchronous state + DOM update before browser paints
+    flushSync(() => {
+      setEditOn((prev) => !prev);
+    });
+
+    // Measure and scroll immediately (still before paint)
+    const gridTopAfter = postsGridRef.current.getBoundingClientRect().top;
+    const diff = gridTopAfter - gridTopBefore;
+    if (Math.abs(diff) > 1) {
+      window.scrollBy({ top: diff, behavior: "instant" });
+    }
+  }, []);
   const useLiveTheme = themeState.uid === profileUser?.uid;
 
   const activeDashHex =
@@ -1045,7 +1070,7 @@ export default function PageViewClient({
                 </ActionButton>
               ) : isOwner ? (
                 <ActionButton
-                  onClick={() => setEditOn(!editOn)}
+                  onClick={handleToggleEditMode}
                   active={editOn}
                   title="Toggle edit mode"
                   className="w-[54px]  "
@@ -1117,7 +1142,10 @@ export default function PageViewClient({
                 )}
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 sm:px-2 lg:grid-cols-5 xl:grid-cols-5 gap-[7px] sm:gap-3">
+              <div
+                ref={postsGridRef}
+                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 sm:px-2 lg:grid-cols-5 xl:grid-cols-5 gap-[7px] sm:gap-3"
+              >
                 {posts.map((post, index) => (
                   <div
                     key={post.id}
@@ -1203,7 +1231,7 @@ export default function PageViewClient({
                   </ActionButton>
                 ) : isOwner ? (
                   <ActionButton
-                    onClick={() => setEditOn(!editOn)}
+                    onClick={handleToggleEditMode}
                     active={editOn}
                     title="Toggle edit mode"
                     className="w-[54px]  "
@@ -1359,7 +1387,7 @@ export default function PageViewClient({
                   )}
 
                   <ActionButton
-                    onClick={() => setEditOn(!editOn)}
+                    onClick={handleToggleEditMode}
                     active={editOn}
                     title="Toggle edit mode"
                   >
