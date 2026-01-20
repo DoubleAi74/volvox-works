@@ -85,11 +85,11 @@ export default function PageInfoEditor({
   const isEditing = canEdit && editOn;
   const showSkeleton = loading && !text && !initialData;
   const baseStyles =
-    "col-start-1 row-start-1 w-full p-0 py-[0px] text-base leading-relaxed font-sans rounded-sm break-words outline-none resize-none overflow-hidden ";
+    "col-start-1 row-start-1 w-full p-0 py-[7px] text-base leading-relaxed font-sans rounded-sm break-words outline-none resize-none overflow-hidden ";
 
   return (
     <section className="w-full block">
-      <div className="relative grid grid-cols-1 w-full min-h-[24px]">
+      <div className="relative grid grid-cols-1 w-full min-h-[40px]">
         {showSkeleton ? (
           <div
             className={`${structuralStyles} animate-pulse ${
