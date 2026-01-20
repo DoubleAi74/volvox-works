@@ -287,7 +287,7 @@ export default function PhotoShowModal({
                     href={post.content}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center focus:outline-none space-x-2 px-2 py-1 mr-[10px] text-sm text-neutral-200 hover:text-neutral-100 bg-emerald-800/70 hover:bg-emerald-800 rounded-[3px]  border border-emerald-800"
+                    className="flex items-center focus:outline-none space-x-2 px-2 py-1 text-sm text-neutral-200 hover:text-neutral-100 bg-emerald-800/70 hover:bg-emerald-800 rounded-[3px]  border border-emerald-800"
                   >
                     <p>Open Link</p>
                     <ExternalLink size={15} />
@@ -301,16 +301,33 @@ export default function PhotoShowModal({
                       href={post.content}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center focus:outline-none space-x-2 px-2 py-1 text-sm text-neutral-200 hover:text-neutral-100 bg-teal-900/80 hover:bg-teal-800 rounded-[3px] border border-teal-900"
+                      className="flex items-center justify-center sm:justify-end
+      px-2 py-1
+      sm:space-x-2
+      text-sm text-neutral-200
+      bg-teal-900/80 hover:bg-teal-800
+      rounded-[3px]
+      border border-teal-900
+      focus:outline-none"
                     >
-                      <p>Open</p>
+                      <p className="hidden sm:block">Open</p>
                       <FileText size={15} />
                     </a>
                     <button
                       onClick={() => handleDownload(post.content)}
-                      className="sm:flex hidden  items-center focus:outline-none space-x-2 px-2 py-1 text-sm text-neutral-200 hover:text-neutral-100 bg-cyan-900/80 mr-[14px] hover:bg-cyan-800 rounded-[3px] border border-cyan-900"
+                      className="
+    grid place-items-center
+    sm:flex sm:items-center sm:justify-end
+    px-2 py-1
+    sm:space-x-2
+    text-sm text-neutral-200 hover:text-neutral-100
+    bg-cyan-900/80 hover:bg-cyan-800
+    mr-[14px] rounded-[3px]
+    border border-cyan-900
+    focus:outline-none
+  "
                     >
-                      <p>Download</p>
+                      <p className="hidden sm:block">Download</p>
                       <Download size={15} />
                     </button>
                   </>
@@ -318,7 +335,7 @@ export default function PhotoShowModal({
 
                 <button
                   onClick={handleCloseClick}
-                  className="flex items-center focus:outline-none space-x-2 px-2 py-1 text-sm text-neutral-400 bg-neutral-800 hover:bg-neutral-700 rounded-[3px] transition-all border border-neutral-700"
+                  className="flex items-center  ml-[10px]  focus:outline-none space-x-2 px-2 py-1 text-sm text-neutral-400 bg-neutral-800 hover:bg-neutral-700 rounded-[3px] transition-all border border-neutral-700"
                 >
                   <p>Close</p>
                   <X size={15} />
