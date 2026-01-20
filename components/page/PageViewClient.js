@@ -1143,7 +1143,7 @@ export default function PageViewClient({
               </div>
             )}
 
-            <div className="w-full mt-10">
+            {/* <div className="w-full mt-10">
               <PageInfoEditor
                 pid={page?.id}
                 canEdit={isOwner}
@@ -1151,7 +1151,7 @@ export default function PageViewClient({
                 initialData={initialInfoTexts?.infoText2}
                 index={2}
               />
-            </div>
+            </div> */}
 
             {/* Buttons On mobile at bottom */}
             <div className=" left-0 w-full pb-[14px] pt-[14px]  flex  sm:!hidden justify-between  px-[5px] z-[100]">
