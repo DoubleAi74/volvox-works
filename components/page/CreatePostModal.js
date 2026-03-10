@@ -11,6 +11,7 @@ import {
   Images,
 } from "lucide-react";
 import { processImage } from "@/lib/processImage";
+import { normalizeRichTextHtml, hasVisibleRichText } from "@/lib/richText";
 
 import { useAuth } from "@/context/AuthContext";
 
@@ -168,10 +169,14 @@ export default function CreatePostModal({
 
     setIsSubmitting(true);
 
+    const normalizedDescription = hasVisibleRichText(formData.description)
+      ? normalizeRichTextHtml(formData.description)
+      : "";
+
     // Pass data to parent
     onSubmit({
       title: formData.title,
-      description: formData.description,
+      description: normalizedDescription,
       blurDataURL: formData.blurDataURL, // Will be empty for HEIC
       pendingFile: formData.pendingFile,
       needsServerBlur: formData.needsServerBlur, // Tell parent this needs server blur

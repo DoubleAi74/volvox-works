@@ -1086,46 +1086,45 @@ export default function PageViewClient({
             {/* <div className=" w-full h-5 bg-red-500 sm:!hidden"></div> */}
 
             {/* SIMPLIFICATION 3: Removed dead "loadingPosts" branch */}
-            {posts.length === 0 ? (
-              <div className="text-center py-8">
-                <h3 className="text-xl font-semibold text-neumorphic mb-0">
-                  This page is empty
-                </h3>
-                {isOwner && (
-                  <p className="text-neumorphic-text mb-0">
-                    Create your first post to get started.
-                  </p>
-                )}
-              </div>
-            ) : (
-              <div
-                ref={postsGridRef}
-                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 sm:px-2 lg:grid-cols-5 xl:grid-cols-5 gap-[7px] sm:gap-3"
-              >
-                {posts.map((post, index) => (
-                  <div
-                    key={post.id}
-                    onClick={() => setSelectedPostForModal(post)}
-                    className="cursor-pointer"
-                  >
-                    <PostCard
-                      post={post}
-                      isOwner={isOwner}
-                      editModeOn={editOn}
-                      pageSlug={params.pageSlug}
-                      onEdit={() => setEditingPost(post)}
-                      onDelete={() => handleDeletePost(post)}
-                      onMoveLeft={() => handleMovePost(post.id, "left")}
-                      onMoveRight={() => handleMovePost(post.id, "right")}
-                      onHoverPreload={handleHoverPreload}
-                      index={index}
-                      isFirst={index === 0}
-                      isLast={index === posts.length - 1}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
+            <div ref={postsGridRef}>
+              {posts.length === 0 ? (
+                <div className="text-center py-8">
+                  <h3 className="text-xl font-semibold text-neumorphic mb-0">
+                    This page is empty
+                  </h3>
+                  {isOwner && (
+                    <p className="text-neumorphic-text mb-0">
+                      Create your first post to get started.
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 sm:px-2 lg:grid-cols-5 xl:grid-cols-5 gap-[7px] sm:gap-3">
+                  {posts.map((post, index) => (
+                    <div
+                      key={post.id}
+                      onClick={() => setSelectedPostForModal(post)}
+                      className="cursor-pointer"
+                    >
+                      <PostCard
+                        post={post}
+                        isOwner={isOwner}
+                        editModeOn={editOn}
+                        pageSlug={params.pageSlug}
+                        onEdit={() => setEditingPost(post)}
+                        onDelete={() => handleDeletePost(post)}
+                        onMoveLeft={() => handleMovePost(post.id, "left")}
+                        onMoveRight={() => handleMovePost(post.id, "right")}
+                        onHoverPreload={handleHoverPreload}
+                        index={index}
+                        isFirst={index === 0}
+                        isLast={index === posts.length - 1}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {/* <div className="w-full mt-10">
               <PageInfoEditor

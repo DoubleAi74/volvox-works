@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState, useLayoutEffect } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useLayoutEffect,
+  useMemo,
+  useCallback,
+} from "react";
 import Image from "next/image";
 import {
   ChevronLeft,
@@ -10,6 +17,7 @@ import {
   Download,
   FileText,
 } from "lucide-react";
+import { buildRenderableRichText } from "@/lib/richText";
 
 // Helper to generate Cloudflare CDN URL
 const getCloudflareUrl = (src, width, quality = 75) => {
@@ -41,6 +49,70 @@ export default function PhotoShowModal({
   const [isLoaded, setIsLoaded] = useState(false);
   const [wasCached, setWasCached] = useState(false);
   const [thumbnailLoaded, setThumbnailLoaded] = useState(false);
+  const renderedDescription = useMemo(
+    () => buildRenderableRichText(post?.description || ""),
+    [post?.description],
+  );
+  const descriptionRef = useRef(null);
+  const typesetterRef = useRef(null);
+  const typesetRafRef = useRef(null);
+  const typesetResizeTimerRef = useRef(null);
+
+  const getDescriptionBlocks = useCallback(() => {
+    const container = descriptionRef.current;
+    if (!container) return [];
+    return Array.from(container.querySelectorAll("p, li, blockquote"));
+  }, []);
+
+  const clearTypesetting = useCallback(() => {
+    const typesetter = typesetterRef.current;
+    if (!typesetter) return;
+
+    const blocks = getDescriptionBlocks();
+    blocks.forEach((block) => {
+      if (typeof typesetter.unjustifyContent === "function") {
+        typesetter.unjustifyContent(block);
+      }
+      const originalWhiteSpace = block.dataset.texOriginalWhitespace;
+      block.style.whiteSpace =
+        originalWhiteSpace !== undefined ? originalWhiteSpace : "";
+      delete block.dataset.texOriginalWhitespace;
+
+      const originalWidth = block.dataset.texOriginalWidth;
+      block.style.width = originalWidth !== undefined ? originalWidth : "";
+      delete block.dataset.texOriginalWidth;
+
+      const originalMaxWidth = block.dataset.texOriginalMaxWidth;
+      block.style.maxWidth =
+        originalMaxWidth !== undefined ? originalMaxWidth : "";
+      delete block.dataset.texOriginalMaxWidth;
+    });
+  }, [getDescriptionBlocks]);
+
+  const getTypesetter = useCallback(async () => {
+    if (typesetterRef.current) {
+      return typesetterRef.current;
+    }
+
+    const [texModule, patternsModule] = await Promise.all([
+      import("tex-linebreak"),
+      import("hyphenation.en-us"),
+    ]);
+
+    const tex =
+      texModule.default ||
+      texModule.texLineBreak_lib ||
+      texModule;
+
+    const patterns = patternsModule.default || patternsModule;
+    typesetterRef.current = {
+      justifyContent: tex.justifyContent,
+      unjustifyContent: tex.unjustifyContent,
+      hyphenate: tex.createHyphenator(patterns),
+    };
+
+    return typesetterRef.current;
+  }, []);
 
   /* ---------------------------------------------
    * Lock body scroll BEFORE dialog opens to prevent position flash on mobile
@@ -109,6 +181,93 @@ export default function PhotoShowModal({
       dialog.close();
     }
   }, [onOff]);
+
+  useEffect(() => {
+    if (!onOff || !renderedDescription.hasContent) return;
+
+    let cancelled = false;
+
+    const applyTypesetting = async () => {
+      let blocks = getDescriptionBlocks();
+      if (blocks.length === 0) return;
+
+      const typesetter = await getTypesetter();
+      if (cancelled) return;
+
+      blocks = getDescriptionBlocks();
+      if (blocks.length === 0) return;
+
+      clearTypesetting();
+
+      blocks.forEach((block) => {
+        block.dataset.texOriginalWhitespace = block.style.whiteSpace || "";
+        block.dataset.texOriginalWidth = block.style.width || "";
+        block.dataset.texOriginalMaxWidth = block.style.maxWidth || "";
+
+        // tex-linebreak depends on computed pixel widths; force a concrete width.
+        const measuredWidth = block.getBoundingClientRect().width;
+        if (measuredWidth > 0) {
+          const pxWidth = `${Math.floor(measuredWidth)}px`;
+          block.style.width = pxWidth;
+          block.style.maxWidth = pxWidth;
+        }
+      });
+
+      if (
+        typeof typesetter.justifyContent === "function" &&
+        typeof typesetter.hyphenate === "function"
+      ) {
+        typesetter.justifyContent(blocks, typesetter.hyphenate);
+      } else {
+        throw new Error("tex-linebreak API unavailable in current module format");
+      }
+    };
+
+    const scheduleTypesetting = () => {
+      if (typesetRafRef.current) {
+        cancelAnimationFrame(typesetRafRef.current);
+      }
+
+      typesetRafRef.current = requestAnimationFrame(() => {
+        applyTypesetting().catch((error) => {
+          console.error("Typesetting failed:", error);
+          clearTypesetting();
+        });
+      });
+    };
+
+    scheduleTypesetting();
+
+    const handleResize = () => {
+      if (typesetResizeTimerRef.current) {
+        clearTimeout(typesetResizeTimerRef.current);
+      }
+      typesetResizeTimerRef.current = setTimeout(scheduleTypesetting, 120);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener("resize", handleResize);
+      if (typesetRafRef.current) {
+        cancelAnimationFrame(typesetRafRef.current);
+        typesetRafRef.current = null;
+      }
+      if (typesetResizeTimerRef.current) {
+        clearTimeout(typesetResizeTimerRef.current);
+        typesetResizeTimerRef.current = null;
+      }
+      clearTypesetting();
+    };
+  }, [
+    onOff,
+    renderedDescription.hasContent,
+    renderedDescription.html,
+    getDescriptionBlocks,
+    getTypesetter,
+    clearTypesetting,
+  ]);
 
   /* ---------------------------------------------
    * Keep React state in sync with native close
@@ -354,7 +513,7 @@ export default function PhotoShowModal({
 
             {/* SCROLL CONTAINER */}
             {/* <div className="flex-1 overflow-y-auto overscroll-contain touch-pan-y"> */}
-            <div className="flex-1 overflow-y-auto overscroll-none">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-none">
               {/* IMAGE AREA */}
               <div
                 key={post.id}
@@ -441,32 +600,34 @@ export default function PhotoShowModal({
               </div>
 
               {/* FOOTER (scrolls with image) */}
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center px-5 py-3 gap-4 bg-neutral-900 border-t border-neutral-800">
-                {post.description ? (
-                  <div
-                    className="
-        w-full min-w-0 
-        text-sm font-light text-neutral-400 leading-relaxed
-        
-        text-justify 
-        hyphens-none       /* CHANGE 1: Disables automatic hyphenation */
-        break-words        /* CHANGE 2: Keeps words together, wraps whole word to next line */
-        
-        whitespace-pre-line
-        [&_p]:mb-3 [&_p:last-child]:mb-0
-      "
-                    style={{
-                      textAlign: "justify",
-                      textJustify: "inter-word",
-                      // overflowWrap: "anywhere" // Optional: Use this if you have massive URLs that break layout
-                    }}
-                    dangerouslySetInnerHTML={{ __html: post.description }}
-                  />
-                ) : (
-                  <div className="text-sm font-light text-neutral-400 leading-relaxed w-full">
-                    <span className="italic opacity-50">...</span>
-                  </div>
-                )}
+              <div className="bg-neutral-900 border-t border-neutral-800 py-4 overflow-x-hidden">
+                <div className="w-full px-[50px]">
+                  {renderedDescription.hasContent ? (
+                    <article
+                      ref={descriptionRef}
+                      lang="en"
+                      className="
+                        rich-text-content mx-auto w-full min-w-0 max-w-none overflow-x-hidden
+                        prose prose-sm sm:prose-base prose-invert max-w-none
+                        text-left whitespace-normal break-normal [text-wrap:pretty]
+                        [word-break:normal] [overflow-wrap:normal] [hyphens:manual]
+                        prose-p:my-2 prose-p:leading-7 prose-p:text-neutral-300
+                        prose-headings:mb-3 prose-headings:mt-0 prose-headings:font-medium prose-headings:text-neutral-100
+                        prose-h1:text-xl prose-h2:text-lg prose-h3:text-base
+                        prose-strong:font-semibold prose-strong:text-neutral-100
+                        prose-em:text-neutral-200
+                        prose-ul:my-3 prose-ol:my-3 prose-li:my-1
+                        prose-a:text-sky-300 prose-a:underline prose-a:underline-offset-2 hover:prose-a:text-sky-200
+                        [&_a]:[overflow-wrap:anywhere]
+                      "
+                      dangerouslySetInnerHTML={{ __html: renderedDescription.html }}
+                    />
+                  ) : (
+                    <div className="text-sm font-light text-neutral-400 leading-relaxed w-full mx-auto">
+                      <span className="italic opacity-50">...</span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

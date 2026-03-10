@@ -12,6 +12,7 @@ import {
 import ImageWithLoader from "@/components/ImageWithLoader";
 import { processImage } from "@/lib/processImage";
 import { useAuth } from "@/context/AuthContext";
+import { normalizeRichTextHtml, hasVisibleRichText } from "@/lib/richText";
 
 // Dynamically import the RichTextEditor with SSR disabled
 const RichTextEditor = dynamic(() => import("./RichTextEditor"), {
@@ -170,10 +171,13 @@ export default function EditPostModal({ isOpen, post, onClose, onSubmit }) {
     if (isSubmitting) return;
 
     setIsSubmitting(true);
+    const normalizedDescription = hasVisibleRichText(formData.description)
+      ? normalizeRichTextHtml(formData.description)
+      : "";
 
     onSubmit({
       title: formData.title,
-      description: formData.description,
+      description: normalizedDescription,
       thumbnail: formData.thumbnail,
       blurDataURL: formData.blurDataURL,
       pendingFile: formData.pendingFile,

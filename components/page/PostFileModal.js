@@ -11,6 +11,7 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import { uploadFile } from "@/lib/data";
+import { normalizeRichTextHtml, hasVisibleRichText } from "@/lib/richText";
 
 import { useAuth } from "@/context/AuthContext";
 
@@ -82,7 +83,12 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit }) {
 
     if (isSubmitting) return;
 
-    let postData = { ...formData };
+    let postData = {
+      ...formData,
+      description: hasVisibleRichText(formData.description)
+        ? normalizeRichTextHtml(formData.description)
+        : "",
+    };
     setFormData(postData);
 
     setIsSubmitting(true);
