@@ -99,10 +99,7 @@ export default function PhotoShowModal({
       import("hyphenation.en-us"),
     ]);
 
-    const tex =
-      texModule.default ||
-      texModule.texLineBreak_lib ||
-      texModule;
+    const tex = texModule.default || texModule.texLineBreak_lib || texModule;
 
     const patterns = patternsModule.default || patternsModule;
     typesetterRef.current = {
@@ -219,7 +216,9 @@ export default function PhotoShowModal({
       ) {
         typesetter.justifyContent(blocks, typesetter.hyphenate);
       } else {
-        throw new Error("tex-linebreak API unavailable in current module format");
+        throw new Error(
+          "tex-linebreak API unavailable in current module format",
+        );
       }
     };
 
@@ -620,7 +619,9 @@ export default function PhotoShowModal({
                         prose-a:text-sky-300 prose-a:underline prose-a:underline-offset-2 hover:prose-a:text-sky-200
                         [&_a]:[overflow-wrap:anywhere]
                       "
-                      dangerouslySetInnerHTML={{ __html: renderedDescription.html }}
+                      dangerouslySetInnerHTML={{
+                        __html: renderedDescription.html,
+                      }}
                     />
                   ) : (
                     <div className="text-sm font-light text-neutral-400 leading-relaxed w-full mx-auto">
