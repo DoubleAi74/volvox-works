@@ -77,15 +77,8 @@ export default function PhotoShowModal({
       block.style.whiteSpace =
         originalWhiteSpace !== undefined ? originalWhiteSpace : "";
       delete block.dataset.texOriginalWhitespace;
-
-      const originalWidth = block.dataset.texOriginalWidth;
-      block.style.width = originalWidth !== undefined ? originalWidth : "";
-      delete block.dataset.texOriginalWidth;
-
-      const originalMaxWidth = block.dataset.texOriginalMaxWidth;
-      block.style.maxWidth =
-        originalMaxWidth !== undefined ? originalMaxWidth : "";
-      delete block.dataset.texOriginalMaxWidth;
+      block.style.width = "";
+      block.style.maxWidth = "";
     });
   }, [getDescriptionBlocks]);
 
@@ -198,16 +191,9 @@ export default function PhotoShowModal({
 
       blocks.forEach((block) => {
         block.dataset.texOriginalWhitespace = block.style.whiteSpace || "";
-        block.dataset.texOriginalWidth = block.style.width || "";
-        block.dataset.texOriginalMaxWidth = block.style.maxWidth || "";
-
-        // tex-linebreak depends on computed pixel widths; force a concrete width.
-        const measuredWidth = block.getBoundingClientRect().width;
-        if (measuredWidth > 0) {
-          const pxWidth = `${Math.floor(measuredWidth)}px`;
-          block.style.width = pxWidth;
-          block.style.maxWidth = pxWidth;
-        }
+        // Keep blocks responsive to container width changes (eg. gutter updates).
+        block.style.width = "100%";
+        block.style.maxWidth = "100%";
       });
 
       if (
@@ -244,11 +230,26 @@ export default function PhotoShowModal({
       typesetResizeTimerRef.current = setTimeout(scheduleTypesetting, 120);
     };
 
+    const observerTarget = descriptionRef.current;
+    const resizeObserver =
+      observerTarget && typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(() => {
+            handleResize();
+          })
+        : null;
+
+    if (resizeObserver && observerTarget) {
+      resizeObserver.observe(observerTarget);
+    }
+
     window.addEventListener("resize", handleResize);
 
     return () => {
       cancelled = true;
       window.removeEventListener("resize", handleResize);
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
       if (typesetRafRef.current) {
         cancelAnimationFrame(typesetRafRef.current);
         typesetRafRef.current = null;
