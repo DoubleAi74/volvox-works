@@ -601,7 +601,7 @@ export default function PhotoShowModal({
 
               {/* FOOTER (scrolls with image) */}
               <div className="bg-neutral-900 border-t border-neutral-800 py-4 overflow-x-hidden">
-                <div className="w-full px-[50px]">
+                <div className="w-full px-[87px]">
                   {renderedDescription.hasContent ? (
                     <article
                       ref={descriptionRef}
