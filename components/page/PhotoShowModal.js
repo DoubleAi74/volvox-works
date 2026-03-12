@@ -388,8 +388,10 @@ export default function PhotoShowModal({
       const urlPath = new URL(url).pathname;
       const filename = urlPath.split("/").pop() || "download";
 
-      // Create a temporary link and trigger download
-      const blobUrl = window.URL.createObjectURL(blob);
+      // Force octet-stream so browsers (especially Chrome) don't open HTML/SVG
+      // files inline instead of downloading them
+      const downloadBlob = new Blob([blob], { type: "application/octet-stream" });
+      const blobUrl = window.URL.createObjectURL(downloadBlob);
       const link = document.createElement("a");
       link.href = blobUrl;
       link.download = filename;
